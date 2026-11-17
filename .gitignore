@@ -1,5 +1,4 @@
 .claude
-.npm/
 coverage/
 *.tgz
 dist/

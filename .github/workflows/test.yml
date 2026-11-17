@@ -16,6 +16,7 @@ on:
 jobs:
   # Only one run at a time may run the live tests against Marktguru.
   boarding-gate:
+    name: Queue
     permissions:
       actions: read
       contents: write # lock refs under refs/boarding-gate/
@@ -29,11 +30,48 @@ jobs:
     secrets:
       update-token: ${{ secrets.OVERRIDE_TOKEN }}
 
-  test:
+  # The test job only runs if code or build config changed. Skipped outside of
+  # pull requests, so pushes to main and workflow_dispatch always run it. Waits
+  # for boarding-gate like everything else: while another run holds the turn,
+  # this one likely needs a rebase anyway.
+  changes:
     needs: boarding-gate
+    # Fail instead of skip if boarding-gate failed, see the test job.
+    if: ${{ !cancelled() && github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read # paths-filter lists the PR's files via the API
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+    steps:
+      - name: Check turn
+        if: needs.boarding-gate.result != 'success'
+        run: exit 1
+      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        id: filter
+        with:
+          filters: |
+            code:
+              - src/**
+              - tests/**
+              - package.json
+              - bun.lock
+              - mise.toml
+              - Makefile
+              - tsconfig*.json
+              - eslint.config.js
+              - .prettierrc
+              - .prettierignore
+              - .c8rc.json
+              - .github/workflows/test.yml
+
+  test:
+    needs: [boarding-gate, changes]
     # A skipped job counts as passed for required checks. Run the job even if
-    # boarding-gate failed and fail it in the first step.
-    if: ${{ !cancelled() }}
+    # boarding-gate failed and fail it in the first step. Skip it if no code
+    # changed.
+    if: ${{ !cancelled() && (needs.changes.result == 'skipped' || (needs.changes.result == 'success' && needs.changes.outputs.code == 'true')) }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -54,22 +92,10 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
 
-      - uses: actions/setup-node@v7
+      - name: Set up Node.js and Bun
+        uses: jdx/mise-action@d5574b52816a478f9d4e6529a3f6ff17a8a36785 # v5.2.8
         with:
-          node-version: 26.x
-
-      - name: Cache node modules
-        id: cache-npm
-        uses: actions/cache@v6
-        env:
-          cache-name: cache-node-modules
-        with:
-          path: .npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
+          install_args: node bun # versions from mise.toml
 
       - name: Install dependencies
         run: make install
@@ -129,8 +155,15 @@ jobs:
           echo "::warning::Codecov didn't report within 5 minutes, coverage is not checked."
 
   actions:
+    needs: boarding-gate
+    # Fail instead of skip if boarding-gate failed, see the test job.
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     steps:
+      - name: Check turn
+        if: needs.boarding-gate.result != 'success'
+        run: exit 1
+
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
@@ -151,11 +184,18 @@ jobs:
   # Code smells (complexity, duplication, nesting) via Qlty. Git-aware: only
   # smells introduced by the PR compared to main fail the job.
   qlty:
+    needs: boarding-gate
+    # Fail instead of skip if boarding-gate failed, see the test job.
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
       contents: read
     steps:
+      - name: Check turn
+        if: needs.boarding-gate.result != 'success'
+        run: exit 1
+
       - name: Checkout code
         uses: actions/checkout@v7
         with:
@@ -186,9 +226,10 @@ jobs:
           fi
 
   # The only test check the ruleset requires, whatever jobs are added later.
-  # Coverage is skipped outside of pull requests, which counts as passed here.
+  # changes and coverage are skipped outside of pull requests, which counts as
+  # passed here.
   required:
-    needs: [boarding-gate, test, coverage, actions, qlty]
+    needs: [boarding-gate, changes, test, coverage, actions, qlty]
     if: always()
     runs-on: ubuntu-latest
     steps:
