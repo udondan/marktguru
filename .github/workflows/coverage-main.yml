@@ -29,21 +29,10 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: actions/setup-node@v7
+      - name: Set up Node.js and Bun
+        uses: jdx/mise-action@d5574b52816a478f9d4e6529a3f6ff17a8a36785 # v5.2.8
         with:
-          node-version: 26.x
-
-      - name: Cache node modules
-        uses: actions/cache@v6
-        env:
-          cache-name: cache-node-modules
-        with:
-          path: .npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
+          install_args: node bun # versions from mise.toml
 
       - name: Install dependencies
         run: make install

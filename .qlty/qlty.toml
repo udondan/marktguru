@@ -42,7 +42,6 @@ exclude_patterns = [
   "**/testdata/**",
   "**/vendor/**",
   "**/.claude/**",
-  "**/.npm/**",
 ]
 
 test_patterns = [
@@ -63,7 +62,7 @@ mode = "block"
 name = "default"
 default = true
 
-# Known vulnerabilities in the locked npm dependencies
+# Known vulnerabilities in the locked dependencies (bun.lock)
 [[plugin]]
 name = "osv-scanner"
 

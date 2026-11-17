@@ -33,13 +33,13 @@
   },
   "scripts": {
     "build": "tsc",
-    "dev": "tsx src/cli.ts",
+    "dev": "bun src/cli.ts",
     "start": "node dist/cli.js",
-    "test": "npm run build && tsc -p tsconfig-tests.json && c8 node --test tests/*.test.ts",
-    "test:unit": "npm run build && tsc -p tsconfig-tests.json && c8 node --test --test-skip-pattern=\"^live:\" tests/*.test.ts",
+    "test": "bun run build && tsc -p tsconfig-tests.json && c8 node --test tests/*.test.ts",
+    "test:unit": "bun run build && tsc -p tsconfig-tests.json && c8 node --test --test-skip-pattern=\"^live:\" tests/*.test.ts",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "bun run build"
   },
   "files": [
     "dist",
@@ -60,7 +60,6 @@
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.7",
     "prettier": "3.10.1",
-    "tsx": "4.23.15",
     "typescript": "5.9.3",
     "typescript-eslint": "8.72.2"
   },

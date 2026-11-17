@@ -4,11 +4,16 @@ Guidance for coding agents working in this repository.
 
 ## Commands
 
+Node.js and Bun versions are pinned only in `mise.toml` (`mise install`); the
+workflows install them with `jdx/mise-action`. Bun is the package manager
+(`bun.lock`); Node runs the CLI and the tests, npm is only used for `npm pack`
+and `npm publish` (trusted publishing).
+
 The Make targets are exactly what CI runs (`.github/workflows/test.yml`), so
 prefer them:
 
 ```bash
-make install          # npm clean-install --prefer-offline --cache .npm
+make install          # bun install --frozen-lockfile
 make eslint           # lint
 make format           # prettier --write .
 make test             # build, then run the test suite under c8 (incl. live tests)
@@ -28,19 +33,18 @@ Fix findings instead of silencing them. Only a deliberate finding (such as a
 fake key in a test fixture) gets a `[[triage]]` entry in `.qlty/qlty.toml`,
 scoped to the single rule and file, with a comment saying why.
 
-Running the CLI locally — the `--` separator is required to pass flags through
-npm:
+Running the CLI locally:
 
 ```bash
-npm run dev -- --help    # tsx, straight from TypeScript
-npm start -- --help      # from dist/, needs a build first
+bun run dev --help       # Bun runs the TypeScript directly
+bun run start --help     # Node, from dist/, needs a build first
 ```
 
 Single test file / single test case:
 
 ```bash
-npm run build && node --test tests/query.test.ts
-npm run build && node --test --test-name-pattern "<name>" tests/query.test.ts
+bun run build && node --test tests/query.test.ts
+bun run build && node --test --test-name-pattern "<name>" tests/query.test.ts
 ```
 
 ## Architecture
@@ -63,12 +67,12 @@ output stays pipeable.
 These are the things that are easy to break without noticing.
 
 - **Tests run against `dist/`.** `tests/*.test.ts` import `../dist/*.js`, so a
-  stale build silently tests old code. `npm test` runs `npm run build` first for
+  stale build silently tests old code. `bun run test` runs `bun run build` first for
   exactly this reason — never invoke bare `node --test`. Node runs the test
   files by stripping their types, so they may only use erasable syntax (no
   enums, namespaces or parameter properties); `tsconfig-tests.json` enforces
-  that and is type-checked by `npm test` against the declarations in `dist/`.
-- **Coverage must stay at 100 %.** `npm test` and `npm run test:unit` run under
+  that and is type-checked by `bun run test` against the declarations in `dist/`.
+- **Coverage must stay at 100 %.** `bun run test` and `bun run test:unit` run under
   c8 (`.c8rc.json`), which fails below 100 % lines, branches, functions or
   statements and writes `coverage/lcov.info`, mapped back to `src/*.ts` through
   source maps. The offline tests alone must reach 100 %: the Coverage workflow
@@ -123,6 +127,16 @@ release-please opens a release PR on every push to `main`; a Monday 09:00 UTC
 cron automerges the single PR labeled `autorelease: pending`, so releases go out
 weekly rather than per merge. The resulting `v*` tag triggers
 `npm publish --provenance` via npm trusted publishing (no `NPM_TOKEN`).
+
+## CI
+
+Every job in `test.yml` except `required` waits for boarding-gate (job `Queue`,
+one run at a time because the live tests hit Marktguru) and fails if it failed:
+while another run holds the turn, the branch likely needs a rebase anyway, so
+nothing runs in parallel. On pull requests the `changes` job
+(`dorny/paths-filter`) decides whether the `test` job runs; when the code or the
+build starts depending on another file, add it to that filter, or the tests
+silently skip. `actions` (actionlint, zizmor) and `qlty` always run.
 
 ## Keep in sync
 

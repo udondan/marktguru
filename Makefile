@@ -5,33 +5,33 @@ TARGET_COLOR=\x1b[96m
 
 build:
 	@echo -e "$(TARGET_COLOR)Running build$(NO_COLOR)"
-	@npm run build
+	@bun run build
 
 clean:
 	@echo -e "$(TARGET_COLOR)Running clean$(NO_COLOR)"
-	@rm -rf node_modules package-lock.json dist
+	@rm -rf node_modules dist
 
 install:
 	@echo -e "$(TARGET_COLOR)Running install$(NO_COLOR)"
-	@npm clean-install --prefer-offline --cache .npm
+	@bun install --frozen-lockfile
 
 test:
 	@echo -e "$(TARGET_COLOR)Running tests$(NO_COLOR)"
-	@npm test
+	@bun run test
 
 test-unit:
 	@echo -e "$(TARGET_COLOR)Running unit tests$(NO_COLOR)"
-	@npm run test:unit
+	@bun run test:unit
 
 # The tests take their types from the declarations in dist/.
 eslint: build
-	@echo -e "$(TARGET_COLOR)Running eslint $$(npx eslint --version)$(NO_COLOR)"
-	@npx eslint .; \
+	@echo -e "$(TARGET_COLOR)Running eslint $$(bunx eslint --version)$(NO_COLOR)"
+	@bunx eslint .; \
 	echo "Passed"
 
 format:
 	@echo -e "$(TARGET_COLOR)Running prettier$(NO_COLOR)"
-	@npx prettier --write .
+	@bunx prettier --write .
 
 validate-package:
 	@echo -e "$(TARGET_COLOR)Checking package content$(NO_COLOR)"

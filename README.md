@@ -84,15 +84,16 @@ marktguru config
 Install and run from source:
 
 ```bash
-npm ci
-npm run build
-npm start -- --help
+mise install   # Node.js and Bun, versions from mise.toml
+bun install --frozen-lockfile
+bun run build
+bun run start --help
 ```
 
-Dev mode (TS directly):
+Dev mode (TS directly, run by Bun):
 
 ```bash
-npm run dev -- --help
+bun run dev --help
 ```
 
 Lint, format and test (same targets CI runs):
