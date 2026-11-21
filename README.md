@@ -6,6 +6,9 @@
 [![Maintainability](https://qlty.sh/gh/udondan/projects/marktguru-cli/maintainability.svg)](https://qlty.sh/gh/udondan/projects/marktguru-cli)
 [![license](https://img.shields.io/github/license/udondan/marktguru-cli.svg)](https://github.com/udondan/marktguru-cli/blob/main/LICENSE)
 
+> [!NOTE]
+> Unofficial community project. Not affiliated with, endorsed or authorized by marktguru.
+
 CLI for Marktguru supermarket deals in Austria and Germany.
 
 This is a maintained fork of [manmal/marktguru-cli](https://github.com/manmal/marktguru-cli), published as [`@udondan/marktguru-cli`](https://www.npmjs.com/package/@udondan/marktguru-cli).
@@ -151,3 +154,10 @@ Not supported (observed):
 ## Config Location
 
 - `~/.marktguru/config.json`
+
+## Disclaimer
+
+This is an unofficial, independent open-source project and is not affiliated with marktguru Deutschland GmbH or its
+affiliates. marktguru is a product or trademark of marktguru Deutschland GmbH or its affiliates. The name is used only
+to describe compatibility. The API used is not public: the `login` command reads API keys from the marktguru website,
+and both may change at any time. Use at your own risk and in accordance with the marktguru terms of use.
