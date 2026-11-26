@@ -50,7 +50,7 @@ validate-package:
 		echo "❌ Failed to list tarball contents"; \
 		exit 1; \
 	fi; \
-	FILES_TO_CHECK="dist/cli.js dist/program.js dist/api.js dist/auth.js dist/config.js dist/query.js dist/commands/config.js dist/commands/login.js dist/commands/search.js dist/commands/serve.js LICENSE README.md"; \
+	FILES_TO_CHECK="dist/cli.js dist/program.js dist/api.js dist/auth.js dist/config.js dist/query.js dist/commands/config.js dist/commands/login.js dist/commands/mcp.js dist/commands/search.js dist/commands/serve.js LICENSE README.md"; \
 	MISSING_FILES=""; \
 	for file in $$FILES_TO_CHECK; do \
 		if ! tar -tf "$$TARBALL" "package/$$file" >/dev/null 2>&1; then \
@@ -62,3 +62,25 @@ validate-package:
 		exit 1; \
 	fi; \
 	echo "✅ Package content looks good"
+
+# The image takes the compiled dist/, it doesn't compile TypeScript itself.
+docker-build: build
+	@echo -e "$(TARGET_COLOR)Building Docker image$(NO_COLOR)"
+	@docker build -t udondan/marktguru .
+
+# Adds the server to a Docker MCP Toolkit profile, created if missing.
+# docker mcp only reads server files from its catalogs directory.
+PROFILE ?= marktguru
+docker-register:
+	@echo -e "$(TARGET_COLOR)Adding the server to the Docker MCP Toolkit profile $(PROFILE)$(NO_COLOR)"
+	@catalogs="$$HOME/.docker/mcp/catalogs"; \
+	mkdir -p "$$catalogs"; \
+	cp docker-mcp.yml "$$catalogs/marktguru.yml"; \
+	server="file://$$catalogs/marktguru.yml"; \
+	if docker mcp profile show "$(PROFILE)" >/dev/null 2>&1; then \
+		docker mcp profile server add "$(PROFILE)" --server "$$server"; \
+	else \
+		docker mcp profile create --name "$(PROFILE)" --id "$(PROFILE)" --server "$$server"; \
+	fi
+
+docker: docker-build docker-register

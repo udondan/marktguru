@@ -1,5 +1,6 @@
 import {
   getConfig,
+  getFileConfig,
   saveConfig,
   DEFAULT_ZIP_CODE,
   VALID_COUNTRIES,
@@ -37,7 +38,7 @@ export async function setCountryCommand(
     );
     process.exit(1);
   }
-  const existing = await getConfig();
+  const existing = await getFileConfig();
   const countryChanged = existing.country !== normalized;
   await saveConfig({
     country: normalized,

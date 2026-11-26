@@ -243,7 +243,7 @@ test('search raw prints text results with the default limit', async () => {
 });
 
 test('search raw prints JSON and passes ZIP code and country', async () => {
-  await saveConfig({ apiKey: 'stored-key' });
+  await saveConfig({ apiKey: 'stored-key', country: 'de' });
   const calls = api(makeResult([makeOffer()]));
   const io = captureIo();
 

@@ -7,7 +7,7 @@ import {
   type Offer,
   type SearchResult,
 } from '../api.js';
-import { getConfig, saveConfig } from '../config.js';
+import { getConfig, getFileConfig, saveConfig } from '../config.js';
 import { extractApiKey } from '../auth.js';
 import { buildQuery } from '../query.js';
 
@@ -174,7 +174,11 @@ function emitWarnings(warnings: string[]): void {
   }
 }
 
-async function login(quiet: boolean, country: string): Promise<string> {
+// Returns the key and whether it was stored in the config file.
+async function login(
+  quiet: boolean,
+  country: string,
+): Promise<{ apiKey: string; stored: boolean }> {
   // Keep stdout clean for JSON output.
   const log = quiet
     ? (msg: string) => console.error(msg)
@@ -182,25 +186,37 @@ async function login(quiet: boolean, country: string): Promise<string> {
   log('No API key configured. Running login...');
 
   const apiKey = await extractApiKey({ log, country });
-  await saveConfig({ apiKey });
-  return apiKey;
+  // The stored key has to match the config file's country. Keys of other
+  // countries (MARKTGURU_COUNTRY or a per-search country) stay in memory.
+  const stored = country === (await getFileConfig()).country;
+  if (stored) await saveConfig({ apiKey });
+  return { apiKey, stored };
 }
 
-// Searches that start while a login runs (in `serve`) wait for it instead of
-// scraping again.
-let pendingLogin: Promise<string> | undefined;
+// Logins per country. Searches that start while a login runs (in `serve` and
+// `mcp`) wait for it instead of scraping again. Keys that are not stored in
+// the config file stay here for later searches.
+const logins = new Map<string, Promise<string>>();
 
-async function ensureApiKey(
-  quiet: boolean,
-  country?: string,
-): Promise<string | undefined> {
-  const config = await getConfig();
-  if (config.apiKey) return config.apiKey;
+function startLogin(quiet: boolean, country: string): Promise<string> {
+  const pending = login(quiet, country).then(
+    ({ apiKey, stored }) => {
+      if (stored) logins.delete(country);
+      return apiKey;
+    },
+    (error: unknown) => {
+      logins.delete(country);
+      throw error;
+    },
+  );
+  logins.set(country, pending);
+  return pending;
+}
 
-  pendingLogin ??= login(quiet, country ?? config.country).finally(() => {
-    pendingLogin = undefined;
-  });
-  return pendingLogin;
+async function ensureApiKey(quiet: boolean, country: string): Promise<string> {
+  const file = await getFileConfig();
+  if (file.apiKey && file.country === country) return file.apiKey;
+  return logins.get(country) ?? startLogin(quiet, country);
 }
 
 // Searches and applies the client-side retailer filter and limit. Logs from
@@ -209,9 +225,10 @@ export async function performSearch(
   query: string,
   options: SearchCommandOptions,
 ): Promise<FullSearchResult> {
+  const country = options.country ?? (await getConfig()).country;
   const apiKey = await ensureApiKey(
     options.json === true || options.jsonFull === true,
-    options.country,
+    country,
   );
   // Fetch more results if filtering by retailer (we'll filter client-side)
   const limit = normalizeLimit(options.limit);
@@ -220,9 +237,13 @@ export async function performSearch(
   const result = await apiSearch({
     query,
     zipCode: options.zip,
-    country: options.country,
+    country,
     limit: fetchLimit,
     apiKey,
+  }).catch((error: unknown) => {
+    // An expired key from memory: the next search logs in again.
+    logins.delete(country);
+    throw error;
   });
 
   let filteredResults = result.results;

@@ -63,6 +63,13 @@ falls through to `src/auth.ts` when no key is stored), then `search()` in
 `node:http`. `GET /search` calls the same `performSearch()` and `toJsonFull()`
 as `search raw --json-full`, so the CLI and the API return identical data.
 
+`src/commands/mcp.ts` (`marktguru mcp`) is an MCP server on stdio
+(`@modelcontextprotocol/sdk`, schemas in `zod`). Its one tool,
+`search_offers`, also calls `performSearch()` and renders with the same
+functions as the CLI. stdout carries the protocol, so nothing in the search
+path may write to it (`performSearch` gets `jsonFull: true`, which keeps the
+auto-login logs on stderr).
+
 Results go to stdout; `--explain` and every warning go to stderr, so `--json`
 output stays pipeable.
 
@@ -107,6 +114,12 @@ These are the things that are easy to break without noticing.
   breaks. `make test-unit` skips the live tests by their `live:` name prefix.
 - **The key is stored in plaintext** at `~/.marktguru/config.json`. The `config`
   and `login` output truncates it — preserve that.
+- **The stored key belongs to the config file's country.** `getConfig()`
+  applies `MARKTGURU_COUNTRY` / `MARKTGURU_ZIP` on top of the file,
+  `getFileConfig()` doesn't, and `saveConfig()` never persists the
+  environment. `ensureApiKey` uses the stored key only for the file's
+  country; other countries (environment or a per-call `country`) log in and
+  keep the key in memory, dropped again when a search with it fails.
 - **`--retailer` filters client-side** on `advertisers[].name`, which is why
   `runSearch` over-fetches 100 results and rewrites `totalResults` to the
   post-filter count.
@@ -126,6 +139,18 @@ These are the things that are easy to break without noticing.
   a bearer token, and on loopback binds the `Host` header must be a loopback
   name (DNS rebinding). Requests with a foreign `Origin` are rejected and no
   CORS headers are sent. Keep it that way when adding endpoints.
+
+## Docker
+
+`Dockerfile` copies the prebuilt `dist/` (`make docker-build` builds it
+first) and installs the runtime dependencies with Bun from `bun.lock`; keep
+its `oven/bun` tag on the Bun version of `mise.toml`. Without arguments the
+image runs `mcp`. `docker-mcp.yml` is the server definition for the Docker MCP
+Toolkit, `make docker-register [PROFILE=<id>]` adds it to a profile. The
+`docker` CI job builds the image and lists its tools through the gateway;
+`publish.yml` pushes `udondan/marktguru` multi-arch to Docker Hub on release
+(environment `docker-hub`, secret `DOCKERHUB_TOKEN`, variable
+`DOCKERHUB_USERNAME`) and signs it keyless with cosign.
 
 ## Release flow
 

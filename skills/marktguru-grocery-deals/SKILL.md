@@ -19,6 +19,7 @@ Query grocery deals from Marktguru in Austria and Germany. Supports raw queries,
 | `config`             | Show current configuration                        |
 | `login`              | Extract API key from marktguru.at/de              |
 | `serve`              | Run a local, read-only HTTP API                   |
+| `mcp`                | Run an MCP server on stdio                        |
 
 ---
 
@@ -266,6 +267,23 @@ get 403. Errors use `{"success": false, "error": "..."}`.
 
 ---
 
+## MCP Server
+
+`mcp` runs an MCP server on stdio with one read-only tool, `search_offers`:
+`query` (required), `limit`, `zip`, `country` (`at`, `de`), `retailer` and
+`format` (`text` default, `json` like `--json`, `json-full` like
+`--json-full`). It logs in automatically on the first search.
+
+```bash
+claude mcp add marktguru -- npx -y @udondan/marktguru-cli mcp
+```
+
+The Docker image `udondan/marktguru` starts the same server without
+arguments (`docker run --rm -i udondan/marktguru`); arguments after the image
+name run the CLI instead.
+
+---
+
 ## Human-Readable Output
 
 ```
@@ -298,6 +316,11 @@ npx @udondan/marktguru-cli config --json
   "configPath": "/Users/.../.marktguru/config.json"
 }
 ```
+
+`MARKTGURU_COUNTRY` and `MARKTGURU_ZIP` override country and ZIP code without
+saving them, e.g. in Docker. The stored key belongs to the country in the
+config file; a search in another country fetches its own key and keeps it in
+memory only.
 
 ---
 
