@@ -82,6 +82,12 @@ Show config:
 marktguru config
 ```
 
+Run a local, read-only HTTP API (see [HTTP API](#http-api)):
+
+```bash
+marktguru serve
+```
+
 ## Also Working (Install Locally)
 
 Install and run from source:
@@ -135,6 +141,43 @@ Builder-only:
 - `--or <value>`: Add a term to an OR group (repeatable)
 - `--group <value>`: Add a raw group wrapped in parentheses (repeatable)
 - `--explain`: Print the built query to stderr
+
+## HTTP API
+
+`marktguru serve` runs a small HTTP server so tools like Home Assistant,
+n8n, Node-RED or a dashboard can query deals without spawning the CLI.
+
+```bash
+marktguru serve                    # http://127.0.0.1:3000
+marktguru serve --port 0           # pick a free port, printed to stderr
+MARKTGURU_SERVE_TOKEN=secret marktguru serve --host 0.0.0.0
+```
+
+| Endpoint      | Parameters                                 | Response                              |
+| ------------- | ------------------------------------------ | ------------------------------------- |
+| `GET /search` | `q` (required), `limit`, `zip`, `retailer` | Same JSON as `search raw --json-full` |
+| `GET /health` |                                            | `{"success": true}`                   |
+
+```bash
+curl 'http://127.0.0.1:3000/search?q=milch&limit=5&retailer=billa'
+```
+
+Errors use `{"success": false, "error": "..."}` with status 400 (bad
+parameters), 401 (missing or wrong token), 403 (foreign `Host` or `Origin`),
+404, 405 or 502 (Marktguru API or login failed). Searches use the configured
+country and log in automatically when no key is stored.
+
+Security model:
+
+- Read-only: no endpoint returns the API key or changes the config. Use the
+  CLI for `login`, `set-zip` and `set-country`.
+- Listens on `127.0.0.1` by default. Any other `--host` requires a token
+  (`--token` or `MARKTGURU_SERVE_TOKEN`), sent as `Authorization: Bearer <token>`.
+- On loopback, requests whose `Host` isn't `127.0.0.1`, `localhost` or
+  `[::1]` with the server's port are rejected, against DNS rebinding.
+- Requests with an `Origin` other than the server's own are rejected, and no
+  CORS headers are sent, so web pages open in your browser can't use it.
+- Stops cleanly on Ctrl+C (`SIGINT`) and `SIGTERM`.
 
 ## Query Syntax (Observed)
 

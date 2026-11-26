@@ -174,6 +174,22 @@ function emitWarnings(warnings: string[]): void {
   }
 }
 
+async function login(quiet: boolean, country: string): Promise<string> {
+  // Keep stdout clean for JSON output.
+  const log = quiet
+    ? (msg: string) => console.error(msg)
+    : (msg: string) => console.log(msg);
+  log('No API key configured. Running login...');
+
+  const apiKey = await extractApiKey({ log, country });
+  await saveConfig({ apiKey });
+  return apiKey;
+}
+
+// Searches that start while a login runs (in `serve`) wait for it instead of
+// scraping again.
+let pendingLogin: Promise<string> | undefined;
+
 async function ensureApiKey(
   quiet: boolean,
   country?: string,
@@ -181,18 +197,10 @@ async function ensureApiKey(
   const config = await getConfig();
   if (config.apiKey) return config.apiKey;
 
-  // Keep stdout clean for JSON output.
-  const log = quiet
-    ? (msg: string) => console.error(msg)
-    : (msg: string) => console.log(msg);
-  log('No API key configured. Running login...');
-
-  const apiKey = await extractApiKey({
-    log,
-    country: country ?? config.country,
+  pendingLogin ??= login(quiet, country ?? config.country).finally(() => {
+    pendingLogin = undefined;
   });
-  await saveConfig({ apiKey });
-  return apiKey;
+  return pendingLogin;
 }
 
 // Searches and applies the client-side retailer filter and limit. Logs from

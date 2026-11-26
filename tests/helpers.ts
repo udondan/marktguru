@@ -1,6 +1,7 @@
 // Shared helpers for the offline tests. Not a test file itself, so
 // `node --test tests/*.test.ts` doesn't pick it up.
 import { mock } from 'node:test';
+import { spawn } from 'node:child_process';
 import { mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -132,4 +133,51 @@ export function makeResult(
     filters: { retailers: [], brands: [], categories: [] },
     ...overrides,
   };
+}
+
+export interface SpawnedServer {
+  url: string;
+  // Sends the signal and resolves with the exit code.
+  stop(signal: NodeJS.Signals): Promise<number | null>;
+}
+
+// Runs `marktguru serve` from dist/ with its own HOME and waits until it
+// listens. Rejects with stderr when it exits first.
+export function spawnServer(
+  home: string,
+  args: string[],
+  env: Record<string, string> = {},
+): Promise<SpawnedServer> {
+  const cli = new URL('../dist/cli.js', import.meta.url).pathname;
+  const childEnv = { ...process.env, ...env };
+  childEnv.HOME = home;
+  childEnv.USERPROFILE = home;
+  const child = spawn(process.execPath, [cli, 'serve', ...args], {
+    env: childEnv,
+    stdio: ['ignore', 'ignore', 'pipe'],
+  });
+  const exited = new Promise<number | null>((resolve) =>
+    child.once('exit', resolve),
+  );
+  return new Promise((resolve, reject) => {
+    let stderr = '';
+    child.stderr.on('data', (chunk: Buffer) => {
+      stderr += chunk.toString();
+      const url = /Listening on (\S+)/.exec(stderr)?.[1];
+      if (url) {
+        resolve({
+          url,
+          stop: (signal) => {
+            child.kill(signal);
+            return exited;
+          },
+        });
+      }
+    });
+    exited.then(
+      (code) =>
+        reject(new Error(`serve exited with ${code}: ${stderr.trim()}`)),
+      reject,
+    );
+  });
 }

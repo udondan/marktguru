@@ -18,6 +18,7 @@ Query grocery deals from Marktguru in Austria and Germany. Supports raw queries,
 | `set-country <code>` | Set default country (`at` or `de`, default: `at`) |
 | `config`             | Show current configuration                        |
 | `login`              | Extract API key from marktguru.at/de              |
+| `serve`              | Run a local, read-only HTTP API                   |
 
 ---
 
@@ -242,6 +243,26 @@ so their fields follow the upstream API and may change. `descriptionLines` is
 added by the CLI: the lines the text output prints for the offer, without
 icons. Use it to show an offer to a person; its wording may change, so read
 data from the structured fields.
+
+---
+
+## HTTP API
+
+`serve` runs a local HTTP server for tools that prefer HTTP over spawning the
+CLI. `GET /search` takes `q` (required), `limit`, `zip` and `retailer` and
+returns the same JSON as `--json-full`; `GET /health` returns
+`{"success": true}`.
+
+```bash
+npx @udondan/marktguru-cli serve --port 3000
+curl 'http://127.0.0.1:3000/search?q=Milch&limit=5'
+```
+
+It is read-only (no login, no config changes, never returns the API key) and
+listens on `127.0.0.1` by default. Any other `--host` requires a token via
+`--token` or `MARKTGURU_SERVE_TOKEN`, sent as `Authorization: Bearer <token>`.
+Requests with a foreign `Origin`, or a non-loopback `Host` on a loopback bind,
+get 403. Errors use `{"success": false, "error": "..."}`.
 
 ---
 

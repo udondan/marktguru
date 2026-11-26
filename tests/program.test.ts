@@ -150,6 +150,19 @@ test('search rejects a limit that is not a positive integer', async () => {
   assert.equal(calls.length, 0);
 });
 
+test('serve rejects an invalid port', async () => {
+  captureIo();
+
+  for (const port of ['-1', 'abc', '65536', '1.5']) {
+    const { program, output } = quietProgram();
+    await assert.rejects(
+      program.parseAsync(['node', 'marktguru', 'serve', '--port', port]),
+      { code: 1 },
+    );
+    assert.match(output.err, /Value must be a port between 0 and 65535\./);
+  }
+});
+
 test('search syntax', async () => {
   const io = captureIo();
   await cli('search', 'syntax');

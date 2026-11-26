@@ -50,7 +50,7 @@ validate-package:
 		echo "❌ Failed to list tarball contents"; \
 		exit 1; \
 	fi; \
-	FILES_TO_CHECK="dist/cli.js dist/program.js dist/api.js dist/auth.js dist/config.js dist/query.js LICENSE README.md"; \
+	FILES_TO_CHECK="dist/cli.js dist/program.js dist/api.js dist/auth.js dist/config.js dist/query.js dist/commands/config.js dist/commands/login.js dist/commands/search.js dist/commands/serve.js LICENSE README.md"; \
 	MISSING_FILES=""; \
 	for file in $$FILES_TO_CHECK; do \
 		if ! tar -tf "$$TARBALL" "package/$$file" >/dev/null 2>&1; then \
