@@ -197,21 +197,48 @@ test('rejects foreign Host headers on loopback', async () => {
   }
 });
 
-test('rejects HTTP/1.0 requests without a Host header on loopback', async () => {
-  const url = new URL(await serve());
-
-  const response = await new Promise<string>((resolve, reject) => {
+// Raw socket for requests node:http clients refuse to send.
+function rawRequest(url: URL, request: string): Promise<string> {
+  return new Promise((resolve, reject) => {
     const socket = connect(Number(url.port), url.hostname, () =>
-      socket.end('GET /health HTTP/1.0\r\n\r\n'),
+      socket.end(request),
     );
     let data = '';
     socket.on('data', (chunk: Buffer) => (data += chunk.toString()));
     socket.on('end', () => resolve(data));
     socket.on('error', reject);
   });
+}
+
+test('rejects HTTP/1.0 requests without a Host header on loopback', async () => {
+  const url = new URL(await serve());
+
+  const response = await rawRequest(url, 'GET /health HTTP/1.0\r\n\r\n');
 
   assert.match(response, /^HTTP\/1\.1 403 /);
   assert.match(response, /Host not allowed/);
+});
+
+test('rejects a Host without port unless the server is on port 80', async () => {
+  const url = await serve();
+
+  const res = await call(`${url}/health`, { headers: { host: 'localhost' } });
+
+  assert.equal(res.status, 403);
+});
+
+test('rejects unparsable request targets and keeps running', async () => {
+  const url = new URL(await serve());
+
+  const response = await rawRequest(
+    url,
+    `GET //[ HTTP/1.1\r\nHost: ${url.host}\r\nConnection: close\r\n\r\n`,
+  );
+
+  assert.match(response, /^HTTP\/1\.1 400 /);
+  assert.match(response, /Invalid request URL/);
+  const res = await call(`${url.href}health`);
+  assert.equal(res.status, 200);
 });
 
 test('rejects foreign Origin headers', async () => {

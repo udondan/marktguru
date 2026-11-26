@@ -57,7 +57,9 @@ function tokenMatches(header: string | undefined, token: string): boolean {
 function checkRequest(req: IncomingMessage, guard: RequestGuard): void {
   // HTTP/1.0 requests may come without a Host header.
   const host = (req.headers.host ?? '').toLowerCase();
-  if (guard.allowedHosts && !guard.allowedHosts.has(host)) {
+  // Clients leave out the default port 80.
+  const hostWithPort = /:\d+$/.test(host) ? host : `${host}:80`;
+  if (guard.allowedHosts && !guard.allowedHosts.has(hostWithPort)) {
     throw new HttpError(403, 'Host not allowed');
   }
   const origin = req.headers.origin;
@@ -107,14 +109,22 @@ const ROUTES: Record<string, (params: URLSearchParams) => Promise<unknown>> = {
   '/search': searchRoute,
 };
 
+function parseUrl(req: IncomingMessage): URL {
+  try {
+    // Requests to a server always carry a URL.
+    return new URL(String(req.url), 'http://localhost');
+  } catch {
+    throw new HttpError(400, 'Invalid request URL');
+  }
+}
+
 async function respond(
   req: IncomingMessage,
   res: ServerResponse,
   guard: RequestGuard,
 ): Promise<unknown> {
   checkRequest(req, guard);
-  // Requests to a server always carry a URL.
-  const url = new URL(String(req.url), 'http://localhost');
+  const url = parseUrl(req);
   if (!Object.hasOwn(ROUTES, url.pathname)) {
     throw new HttpError(404, 'Not found');
   }
