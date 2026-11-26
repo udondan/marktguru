@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.1.0](https://github.com/udondan/marktguru/compare/v1.0.6...v1.1.0) (2026-11-26)
+
+
+### Features
+
+* add --json-full output with the complete API response ([#112](https://github.com/udondan/marktguru/issues/112)) ([b7e4144](https://github.com/udondan/marktguru/commit/b7e41441feb0c56361c6e593f066c4e9a1bae08b)), closes [#109](https://github.com/udondan/marktguru/issues/109)
+* add descriptionLines to --json-full offers ([#114](https://github.com/udondan/marktguru/issues/114)) ([2256c5c](https://github.com/udondan/marktguru/commit/2256c5c67bab5c3522598320a1f00e988ad93bb3)), closes [#110](https://github.com/udondan/marktguru/issues/110)
+* add mcp command with Docker image ([#116](https://github.com/udondan/marktguru/issues/116)) ([57089a7](https://github.com/udondan/marktguru/commit/57089a708975368e2bde3a5f951f589ebfda4947))
+* add serve command with a local read-only HTTP API ([#115](https://github.com/udondan/marktguru/issues/115)) ([1a54217](https://github.com/udondan/marktguru/commit/1a54217ce0ffe62dfe2ddfe3d81cf095f08639bf)), closes [#111](https://github.com/udondan/marktguru/issues/111)
+* rename the project and npm package to marktguru ([#117](https://github.com/udondan/marktguru/issues/117)) ([d420d5e](https://github.com/udondan/marktguru/commit/d420d5e0bdea0ebfd9061002ea51f50e8a62a8e1))
+
 ## [1.0.6](https://github.com/udondan/marktguru-cli/compare/v1.0.5...v1.0.6) (2026-11-16)
 
 
