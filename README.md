@@ -17,6 +17,27 @@ API and an MCP server.
 This is a maintained fork of [manmal/marktguru-cli](https://github.com/manmal/marktguru-cli), published as [`@udondan/marktguru`](https://www.npmjs.com/package/@udondan/marktguru)
 (formerly [`@udondan/marktguru-cli`](https://www.npmjs.com/package/@udondan/marktguru-cli)).
 
+## Table of Contents
+
+- [AI Agent Skill](#ai-agent-skill)
+- [Quick Start (Recommended)](#quick-start-recommended)
+- [Requirements](#requirements)
+- [Commands](#commands)
+- [Also Working (Install Locally)](#also-working-install-locally)
+- [Search Options](#search-options)
+- [HTTP API](#http-api)
+- [MCP Server](#mcp-server)
+  - [Claude Code](#claude-code)
+  - [Claude Desktop and other clients](#claude-desktop-and-other-clients)
+- [Docker](#docker)
+  - [Docker MCP Toolkit](#docker-mcp-toolkit)
+- [Query Syntax (Observed)](#query-syntax-observed)
+- [Notes on `login`](#notes-on-login)
+- [Config Location](#config-location)
+- [Disclaimer](#disclaimer)
+
+---
+
 ## AI Agent Skill
 
 Install into your coding agent with the [`skills`](https://skills.sh) CLI:
