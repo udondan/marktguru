@@ -7,7 +7,11 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { promisify } from 'node:util';
-import type { FullSearchOutput, SearchOutput } from './helpers.ts';
+import {
+  spawnServer,
+  type FullSearchOutput,
+  type SearchOutput,
+} from './helpers.ts';
 
 const run = promisify(execFile);
 const CLI = new URL('../dist/cli.js', import.meta.url).pathname;
@@ -81,6 +85,22 @@ for (const { country, zip } of COUNTRIES) {
         }
         assert.equal(typeof fullData.filters, 'object');
         assert.ok(Array.isArray(fullData.filters.retailers));
+
+        // The HTTP API returns the same shape.
+        const server = await spawnServer(home, ['--port', '0']);
+        try {
+          const res = await fetch(
+            `${server.url}/search?q=milch&zip=${zip}&limit=3`,
+          );
+          assert.equal(res.status, 200);
+          const served = (await res.json()) as FullSearchOutput;
+          assert.equal(served.query, 'milch');
+          assert.ok(served.results.length > 0);
+          assert.ok(served.results.length <= 3);
+          assert.ok(served.results[0].descriptionLines.length > 0);
+        } finally {
+          await server.stop('SIGTERM');
+        }
       } finally {
         await rm(home, { recursive: true, force: true });
       }

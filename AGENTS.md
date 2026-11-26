@@ -59,6 +59,10 @@ falls through to `src/auth.ts` when no key is stored), then `search()` in
 `src/api.ts`, then renders through `formatResultsText` or `simplifyOffer` in
 `src/commands/search.ts`. `src/query.ts` is pure and I/O-free.
 
+`src/commands/serve.ts` (`marktguru serve`) is a read-only HTTP API on
+`node:http`. `GET /search` calls the same `performSearch()` and `toJsonFull()`
+as `search raw --json-full`, so the CLI and the API return identical data.
+
 Results go to stdout; `--explain` and every warning go to stderr, so `--json`
 output stays pipeable.
 
@@ -114,9 +118,14 @@ These are the things that are easy to break without noticing.
   linting fail.
 - **Exact dependency versions only** — no `^` or `~`.
 - **`make validate-package` asserts a hardcoded file list.** Extend it when a
-  new shipped entrypoint is added. It currently omits `dist/commands/*.js` even
-  though those ship. Source maps are built for coverage but excluded from the
+  new module is added under `src/`. Source maps are built for coverage but excluded from the
   package via `!dist/**/*.map` in `files`.
+
+- **`serve` is deliberately read-only.** No endpoint returns the API key or
+  changes the config. It binds to `127.0.0.1` by default; any other host needs
+  a bearer token, and on loopback binds the `Host` header must be a loopback
+  name (DNS rebinding). Requests with a foreign `Origin` are rejected and no
+  CORS headers are sent. Keep it that way when adding endpoints.
 
 ## Release flow
 

@@ -11,6 +11,12 @@ import {
   setCountryCommand,
   setZipCommand,
 } from './commands/config.js';
+import {
+  DEFAULT_HOST,
+  DEFAULT_PORT,
+  serveCommand,
+  type ServeOptions,
+} from './commands/serve.js';
 import { QUERY_SYNTAX_HELP } from './query.js';
 
 type JsonFlag = (options: { json?: boolean }) => boolean;
@@ -19,6 +25,14 @@ const parsePositiveInt = (value: string): number => {
   const parsed = Number.parseInt(value, 10);
   if (!Number.isFinite(parsed) || parsed <= 0) {
     throw new InvalidArgumentError('Value must be a positive integer.');
+  }
+  return parsed;
+};
+
+const parsePort = (value: string): number => {
+  const parsed = Number(value);
+  if (!/^\d+$/.test(value) || parsed > 65535) {
+    throw new InvalidArgumentError('Value must be a port between 0 and 65535.');
   }
   return parsed;
 };
@@ -133,6 +147,42 @@ function registerConfigCommands(program: Command, getJsonFlag: JsonFlag): void {
     });
 }
 
+function registerServeCommand(program: Command): void {
+  program
+    .command('serve')
+    .description('Run a local, read-only HTTP API (GET /search, GET /health)')
+    .option('--host <address>', 'Address to listen on', DEFAULT_HOST)
+    .option(
+      '--port <number>',
+      'Port to listen on, 0 picks a free one',
+      parsePort,
+      DEFAULT_PORT,
+    )
+    .option(
+      '--token <token>',
+      'Require "Authorization: Bearer <token>" (default: $MARKTGURU_SERVE_TOKEN)',
+    )
+    .addHelpText(
+      'after',
+      [
+        '',
+        'Security:',
+        '  Listens on 127.0.0.1 by default. Any other address requires a token.',
+        '  Requests with a foreign Origin, or a Host other than the loopback',
+        '  address on a loopback bind, are rejected. No endpoint changes the',
+        '  config or returns the API key.',
+        '',
+        'Endpoints:',
+        '  GET /health',
+        '  GET /search?q=<query>[&limit=<n>][&zip=<code>][&retailer=<name>]',
+        '      Returns the same JSON as `search raw --json-full`.',
+      ].join('\n'),
+    )
+    .action(async (options: ServeOptions) => {
+      await serveCommand(options);
+    });
+}
+
 export function createProgram(): Command {
   const program = new Command();
 
@@ -161,6 +211,7 @@ export function createProgram(): Command {
   registerLoginCommand(program, getJsonFlag);
   registerSearchCommands(program, getJsonFlag);
   registerConfigCommands(program, getJsonFlag);
+  registerServeCommand(program);
 
   return program;
 }
