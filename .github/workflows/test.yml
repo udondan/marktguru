@@ -233,6 +233,23 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }} # zizmor checks the actions online
 
+  markdown:
+    needs: boarding-gate
+    # Fail instead of skip if boarding-gate failed, see the test job.
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check turn
+        if: needs.boarding-gate.result != 'success'
+        run: exit 1
+
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # Files and rules come from .markdownlint-cli2.yaml, whose globs add to the action's default of the root files.
+      - uses: DavidAnson/markdownlint-cli2-action@696eb3f2509270d7b882d2aa68347bc676e7af34 # v25.0.0
+
   # Code smells (complexity, duplication, nesting) via Qlty. Git-aware: only
   # smells introduced by the PR compared to main fail the job.
   qlty:
@@ -281,7 +298,8 @@ jobs:
   # changes and coverage are skipped outside of pull requests, which counts as
   # passed here.
   required:
-    needs: [boarding-gate, changes, test, coverage, docker, actions, qlty]
+    needs:
+      [boarding-gate, changes, test, coverage, docker, actions, markdown, qlty]
     if: always()
     runs-on: ubuntu-latest
     steps:

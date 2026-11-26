@@ -33,6 +33,13 @@ Fix findings instead of silencing them. Only a deliberate finding (such as a
 fake key in a test fixture) gets a `[[triage]]` entry in `.qlty/qlty.toml`,
 scoped to the single rule and file, with a comment saying why.
 
+The `markdown` CI job lints every Markdown file except `CHANGELOG.md` with
+markdownlint-cli2; files and rules are in `.markdownlint-cli2.yaml`:
+
+```bash
+bunx markdownlint-cli2
+```
+
 Running the CLI locally:
 
 ```bash
@@ -170,7 +177,8 @@ while another run holds the turn, the branch likely needs a rebase anyway, so
 nothing runs in parallel. On pull requests the `changes` job
 (`dorny/paths-filter`) decides whether the `test` job runs; when the code or the
 build starts depending on another file, add it to that filter, or the tests
-silently skip. `actions` (actionlint, zizmor) and `qlty` always run.
+silently skip. `actions` (actionlint, zizmor), `markdown` and `qlty` always
+run.
 
 ## Keep in sync
 
