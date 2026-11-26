@@ -111,6 +111,12 @@ These are the things that are easy to break without noticing.
 - **API keys are country-scoped.** `set-country` deliberately clears `apiKey`
   when the country actually changes, and `search` auto-logs-in using the
   configured country.
+- **A config file without a country is Austrian.** The default country is
+  `de`, but versions up to 1.1 defaulted to `at` and stored the country only
+  on `set-country`. `fallbackCountry()` in `src/config.ts` therefore reads a
+  non-empty file without `country` as `at` (so its stored key keeps working),
+  and `saveConfig()` always writes the country. The default ZIP code follows
+  the country (`defaultZipCode()`).
 - **`login` is scraping, not an account login.** It fetches the public site,
   regex-scans the HTML and boot scripts for an embedded key, and brute-force
   validates candidates against the live search endpoint. It breaks whenever

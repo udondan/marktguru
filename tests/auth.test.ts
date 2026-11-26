@@ -41,8 +41,8 @@ test('extractApiKey rejects unsupported countries', async () => {
 test('extractApiKey finds a key in a script of the entry page', async () => {
   const calls = site({
     pages: {
-      'https://www.marktguru.at/': '<script src="/app.js"></script>',
-      'https://www.marktguru.at/app.js': `headers: { "x-apikey": "${VALID_KEY}" }`,
+      'https://www.marktguru.de/': '<script src="/app.js"></script>',
+      'https://www.marktguru.de/app.js': `headers: { "x-apikey": "${VALID_KEY}" }`,
     },
   });
 
@@ -108,8 +108,8 @@ test('extractApiKey scans at most 20 scripts', async () => {
   ).join('');
   const calls = site({
     pages: {
-      'https://www.marktguru.at/': scripts,
-      'https://www.marktguru.at/s0.js': `apiKey = '${VALID_KEY}'`,
+      'https://www.marktguru.de/': scripts,
+      'https://www.marktguru.de/s0.js': `apiKey = '${VALID_KEY}'`,
     },
   });
 
@@ -122,7 +122,7 @@ test('extractApiKey fails when no entry URL responds', async () => {
   site({ pages: {} });
   await assert.rejects(
     extractApiKey(),
-    /HTTP 404 for https:\/\/www\.marktguru\.at\/suche\?q=test/,
+    /HTTP 404 for https:\/\/www\.marktguru\.de\/suche\?q=test/,
   );
 });
 
@@ -136,7 +136,7 @@ test('extractApiKey wraps non-Error fetch failures', async () => {
 });
 
 test('extractApiKey fails when the page has no scripts', async () => {
-  site({ pages: { 'https://www.marktguru.at/': '<html></html>' } });
+  site({ pages: { 'https://www.marktguru.de/': '<html></html>' } });
   await assert.rejects(extractApiKey(), /No scripts found/);
 });
 
@@ -144,8 +144,8 @@ test('extractApiKey fails when no candidate is valid', async () => {
   site({
     validKeys: [],
     pages: {
-      'https://www.marktguru.at/': `<script src="/app.js"></script> apiKey: "${VALID_KEY}"`,
-      'https://www.marktguru.at/app.js': '',
+      'https://www.marktguru.de/': `<script src="/app.js"></script> apiKey: "${VALID_KEY}"`,
+      'https://www.marktguru.de/app.js': '',
     },
   });
   await assert.rejects(extractApiKey(), /Failed to capture a valid API key/);

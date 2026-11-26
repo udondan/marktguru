@@ -2,7 +2,7 @@ import {
   getConfig,
   getFileConfig,
   saveConfig,
-  DEFAULT_ZIP_CODE,
+  defaultZipCode,
   VALID_COUNTRIES,
   type LoadedConfig,
 } from '../config.js';
@@ -64,7 +64,7 @@ function printConfigJson(config: LoadedConfig): void {
     JSON.stringify({
       apiKey: config.apiKey ? truncateKey(config.apiKey) : null,
       apiKeySet: !!config.apiKey,
-      zipCode: config.zipCode ?? DEFAULT_ZIP_CODE,
+      zipCode: config.zipCode ?? defaultZipCode(config.country),
       country: config.country,
       configPath: config.configPath,
     }),
@@ -79,7 +79,7 @@ function printConfigText(config: LoadedConfig): void {
   );
   console.log(
     '  ZIP Code:',
-    config.zipCode ?? `(default: ${DEFAULT_ZIP_CODE})`,
+    config.zipCode ?? `(default: ${defaultZipCode(config.country)})`,
   );
   console.log('  Country:', config.country);
   console.log('  Config file:', config.configPath);
