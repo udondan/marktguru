@@ -1,10 +1,12 @@
 # marktguru 🧘‍♂️
 
-[![Test](https://github.com/udondan/marktguru/actions/workflows/test.yml/badge.svg)](https://github.com/udondan/marktguru/actions/workflows/test.yml)
-[![npm](https://img.shields.io/npm/v/@udondan/marktguru.svg)](https://www.npmjs.com/package/@udondan/marktguru)
+[![npm](https://img.shields.io/npm/v/@udondan/marktguru)](https://www.npmjs.com/package/@udondan/marktguru)
+[![Docker](https://img.shields.io/docker/v/udondan/marktguru?sort=semver&label=docker)](https://hub.docker.com/r/udondan/marktguru)
+[![Node.js](https://img.shields.io/node/v/@udondan/marktguru)](https://www.npmjs.com/package/@udondan/marktguru)
+[![Test](https://github.com/udondan/marktguru/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/udondan/marktguru/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/udondan/marktguru/graph/badge.svg)](https://codecov.io/gh/udondan/marktguru)
 [![Maintainability](https://qlty.sh/gh/udondan/projects/marktguru/maintainability.svg)](https://qlty.sh/gh/udondan/projects/marktguru)
-[![license](https://img.shields.io/github/license/udondan/marktguru.svg)](https://github.com/udondan/marktguru/blob/main/LICENSE)
+[![License](https://img.shields.io/github/license/udondan/marktguru)](LICENSE)
 
 > [!NOTE]
 > Unofficial community project. Not affiliated with, endorsed or authorized by marktguru.
@@ -37,7 +39,7 @@ npx --yes @udondan/marktguru search build --term milch --or soja
 
 ## Requirements
 
-- Node.js 18+ (built-in `fetch`)
+- Node.js 22.12+
 - Works with `npm`, `pnpm`, and `bun`
 
 ## Commands
