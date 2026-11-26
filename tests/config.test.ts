@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { isolateHome } from './helpers.ts';
 
 const home = await isolateHome();
-const { getConfig, saveConfig, DEFAULT_COUNTRY } =
+const { getConfig, getFileConfig, saveConfig, DEFAULT_COUNTRY } =
   await import('../dist/config.js');
 const configDir = join(home, '.marktguru');
 const configFile = join(configDir, 'config.json');
@@ -59,4 +59,45 @@ test('saveConfig creates the directory, merges and omits configPath', async () =
     apiKey: 'secret-key',
     configPath: configFile,
   });
+});
+
+test('environment variables override the config file but are not saved', async () => {
+  await saveConfig({ apiKey: 'at-key', country: 'at', zipCode: '1020' });
+  process.env.MARKTGURU_COUNTRY = 'DE';
+  process.env.MARKTGURU_ZIP = '10115';
+  try {
+    assert.deepEqual(await getConfig(), {
+      apiKey: 'at-key',
+      country: 'de',
+      zipCode: '10115',
+      configPath: configFile,
+    });
+    assert.equal((await getFileConfig()).country, 'at');
+
+    await saveConfig({ apiKey: 'new-key' });
+  } finally {
+    delete process.env.MARKTGURU_COUNTRY;
+    delete process.env.MARKTGURU_ZIP;
+  }
+
+  const persisted: unknown = JSON.parse(await readFile(configFile, 'utf-8'));
+  assert.deepEqual(persisted, {
+    apiKey: 'new-key',
+    country: 'at',
+    zipCode: '1020',
+  });
+});
+
+test('empty environment variables count as unset', async () => {
+  process.env.MARKTGURU_COUNTRY = '';
+  process.env.MARKTGURU_ZIP = '';
+  try {
+    assert.deepEqual(await getConfig(), {
+      country: DEFAULT_COUNTRY,
+      configPath: configFile,
+    });
+  } finally {
+    delete process.env.MARKTGURU_COUNTRY;
+    delete process.env.MARKTGURU_ZIP;
+  }
 });

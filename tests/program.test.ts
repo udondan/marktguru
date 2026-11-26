@@ -227,6 +227,19 @@ test('set-country clears the key when the country changes', async () => {
   assert.equal(config.apiKey, undefined);
 });
 
+test('set-country compares with the config file, not MARKTGURU_COUNTRY', async () => {
+  await saveConfig({ apiKey: 'stored-key', country: 'at' });
+  process.env.MARKTGURU_COUNTRY = 'de';
+  captureIo();
+  try {
+    await cli('set-country', 'at');
+  } finally {
+    delete process.env.MARKTGURU_COUNTRY;
+  }
+
+  assert.equal((await getConfig()).apiKey, 'stored-key');
+});
+
 test('set-country --json reports whether a key was cleared', async () => {
   const io = captureIo();
 

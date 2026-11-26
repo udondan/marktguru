@@ -1,0 +1,12 @@
+.git/
+.github/
+.claude/
+.qlty/
+node_modules/
+coverage/
+tests/
+skills/
+dist/**/*.map
+*.tgz
+.env
+.env.*

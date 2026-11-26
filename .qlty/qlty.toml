@@ -87,6 +87,7 @@ match.rules = ["gitleaks:generic-api-key"]
 match.file_patterns = [
   "tests/auth.test.ts",
   "tests/login.test.ts",
+  "tests/mcp.test.ts",
   "tests/program.test.ts",
 ]
 set.ignored = true
@@ -95,4 +96,10 @@ set.ignored = true
 [[triage]]
 match.rules = ["radarlint-js:typescript:S3696"]
 match.file_patterns = ["tests/auth.test.ts"]
+set.ignored = true
+
+# The MCP server talks over stdio; there is nothing to health-check.
+[[triage]]
+match.rules = ["trivy:DS-0026"]
+match.file_patterns = ["Dockerfile"]
 set.ignored = true

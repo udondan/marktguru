@@ -167,6 +167,8 @@ parameters), 401 (missing or wrong token), 403 (foreign `Host` or `Origin`),
 404, 405 or 502 (Marktguru API or login failed). Searches use the configured
 country and log in automatically when no key is stored.
 
+For AI assistants, see [MCP Server](#mcp-server).
+
 Security model:
 
 - Read-only: no endpoint returns the API key or changes the config. Use the
@@ -178,6 +180,114 @@ Security model:
 - Requests with an `Origin` other than the server's own are rejected, and no
   CORS headers are sent, so web pages open in your browser can't use it.
 - Stops cleanly on Ctrl+C (`SIGINT`) and `SIGTERM`.
+
+## MCP Server
+
+`marktguru mcp` runs an [MCP](https://modelcontextprotocol.io) server on
+stdio, so AI assistants can search deals directly. It has one read-only tool:
+
+| Tool            | Arguments                                                                                                      |
+| --------------- | -------------------------------------------------------------------------------------------------------------- |
+| `search_offers` | `query` (required), `limit`, `zip`, `country` (`at`, `de`), `retailer`, `format` (`text`, `json`, `json-full`) |
+
+`format` picks the same output as the CLI: the readable list (default),
+`--json` or `--json-full`. The API key is fetched automatically on the first
+search, like `search` does. Country and ZIP code default to the
+[config](#config-location) and can be set per search.
+
+### Claude Code
+
+```bash
+claude mcp add marktguru -- npx -y @udondan/marktguru-cli mcp
+```
+
+### Claude Desktop and other clients
+
+Add to the client's MCP configuration (for Claude Desktop
+`claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "marktguru": {
+      "command": "npx",
+      "args": ["-y", "@udondan/marktguru-cli", "mcp"],
+      "env": { "MARKTGURU_COUNTRY": "de", "MARKTGURU_ZIP": "10115" }
+    }
+  }
+}
+```
+
+`env` is optional, see [Config Location](#config-location).
+
+## Docker
+
+The image [`udondan/marktguru`](https://hub.docker.com/r/udondan/marktguru)
+starts the MCP server without arguments. Arguments after the image name are
+passed to the CLI:
+
+```bash
+docker run --rm -i udondan/marktguru                       # MCP server on stdio
+docker run --rm -e MARKTGURU_COUNTRY=de -e MARKTGURU_ZIP=10115 udondan/marktguru search raw milch
+```
+
+`~/.marktguru/config.json` is not visible inside the container, so set
+country and ZIP code with `MARKTGURU_COUNTRY` and `MARKTGURU_ZIP`. The API key
+is fetched once per container.
+
+The images are signed with [cosign](https://github.com/sigstore/cosign)
+(keyless, by the release workflow of this repository):
+
+```bash
+cosign verify udondan/marktguru:latest \
+  --certificate-identity-regexp '^https://github.com/udondan/marktguru-cli/' \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com
+```
+
+### Docker MCP Toolkit
+
+With the [Docker MCP Toolkit](https://docs.docker.com/ai/mcp-catalog-and-toolkit/toolkit/)
+of Docker Desktop, the server runs as a container behind the MCP Gateway,
+which starts it on demand and passes its tools on to the connected clients.
+
+1. Download the server definition [`docker-mcp.yml`](docker-mcp.yml) and add it
+   to a Toolkit profile. The Toolkit only reads such files from its catalogs
+   directory:
+
+   ```bash
+   mkdir -p ~/.docker/mcp/catalogs
+   curl -fsSL https://raw.githubusercontent.com/udondan/marktguru-cli/main/docker-mcp.yml -o ~/.docker/mcp/catalogs/marktguru.yml
+
+   # new profile "marktguru" ...
+   docker mcp profile create --name marktguru --id marktguru --server "file://$HOME/.docker/mcp/catalogs/marktguru.yml"
+   # ... or add it to an existing profile
+   docker mcp profile server add default --server "file://$HOME/.docker/mcp/catalogs/marktguru.yml"
+   ```
+
+   The profile keeps the image at the version it had when it was added. Run
+   `profile server add` again to update. From a clone of this repository,
+   `make docker` builds the image locally and does the same
+   (`make docker-register PROFILE=<id>` for another profile).
+
+2. Optionally set the default country and ZIP code (Austria and 1010
+   otherwise):
+
+   ```bash
+   docker mcp profile config marktguru --set marktguru.country=de --set marktguru.zip=10115
+   ```
+
+3. Connect a client to the profile:
+
+   ```bash
+   docker mcp client connect claude-desktop --profile marktguru
+   ```
+
+   `docker mcp client connect --help` lists more clients such as `claude-code`,
+   `cursor` or `vscode`.
+
+`docker mcp gateway run --profile marktguru --dry-run --verbose` checks the
+setup without starting a client. The output should end with
+`marktguru: (1 tools)`.
 
 ## Query Syntax (Observed)
 
@@ -203,6 +313,12 @@ Not supported (observed):
 ## Config Location
 
 - `~/.marktguru/config.json`
+
+The environment variables `MARKTGURU_COUNTRY` (`at`, `de`) and `MARKTGURU_ZIP`
+override the country and default ZIP code of the config file for `search`,
+`serve` and `mcp`. They are not saved. The stored API key belongs to the
+country in the config file; searches in another country fetch a key for it
+and keep it in memory only.
 
 ## Disclaimer
 

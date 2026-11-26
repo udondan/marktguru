@@ -17,6 +17,7 @@ import {
   serveCommand,
   type ServeOptions,
 } from './commands/serve.js';
+import { mcpCommand } from './commands/mcp.js';
 import { QUERY_SYNTAX_HELP } from './query.js';
 
 type JsonFlag = (options: { json?: boolean }) => boolean;
@@ -183,6 +184,15 @@ function registerServeCommand(program: Command): void {
     });
 }
 
+function registerMcpCommand(program: Command): void {
+  program
+    .command('mcp')
+    .description('Run an MCP server on stdio (tool: search_offers)')
+    .action(async () => {
+      await mcpCommand(String(program.version()));
+    });
+}
+
 export function createProgram(): Command {
   const program = new Command();
 
@@ -202,6 +212,10 @@ export function createProgram(): Command {
       '  $ marktguru search build --term kellys --phrase "erdnuss snips" --or manner --explain',
       '  $ marktguru search syntax',
       '',
+      'Environment:',
+      '  MARKTGURU_COUNTRY  Country, overrides the config (at, de)',
+      '  MARKTGURU_ZIP      Default ZIP code, overrides the config',
+      '',
     ].join('\n'),
   );
 
@@ -212,6 +226,7 @@ export function createProgram(): Command {
   registerSearchCommands(program, getJsonFlag);
   registerConfigCommands(program, getJsonFlag);
   registerServeCommand(program);
+  registerMcpCommand(program);
 
   return program;
 }
