@@ -1,11 +1,11 @@
 ---
 name: marktguru-grocery-deals
-description: Look up grocery deals and offers via the marktguru CLI, HTTP API or MCP server. Use when user asks about supermarket discounts, product prices, current promotions, or comparing deals across Austrian or German retailers (Hofer, Billa, Spar, Lidl, Penny, REWE, Kaufland, etc.).
+description: Look up grocery deals and offers via the marktguru CLI, HTTP API or MCP server. Use when user asks about supermarket discounts, product prices, current promotions, or comparing deals across German or Austrian retailers (Hofer, Billa, Spar, Lidl, Penny, REWE, Kaufland, etc.).
 ---
 
 # Marktguru Grocery Deals
 
-Query grocery deals from Marktguru in Austria and Germany. Supports raw queries, structured search building, retailer filtering, ZIP-code location targeting, and country selection (AT/DE).
+Query grocery deals from Marktguru in Germany and Austria. Supports raw queries, structured search building, retailer filtering, ZIP-code location targeting, and country selection (DE/AT).
 
 ## Quick Reference
 
@@ -15,7 +15,7 @@ Query grocery deals from Marktguru in Austria and Germany. Supports raw queries,
 | `search build`       | Build query from structured flags                 |
 | `search syntax`      | Show supported query syntax                       |
 | `set-zip <code>`     | Set default ZIP code                              |
-| `set-country <code>` | Set default country (`at` or `de`, default: `at`) |
+| `set-country <code>` | Set default country (`de` or `at`, default: `de`) |
 | `config`             | Show current configuration                        |
 | `login`              | Extract API key from marktguru.at/de              |
 | `serve`              | Run a local, read-only HTTP API                   |
@@ -36,16 +36,15 @@ Scans site HTML and boot scripts for embedded API keys. No browser automation re
 ### Set Default ZIP Code
 
 ```bash
-npx @udondan/marktguru set-zip 1010
-npx @udondan/marktguru set-zip 8010  # Graz
-npx @udondan/marktguru set-zip 10115  # Berlin (DE)
+npx @udondan/marktguru set-zip 80331  # Munich
+npx @udondan/marktguru set-zip 8010  # Graz (AT)
 ```
 
 ### Set Default Country
 
 ```bash
-npx @udondan/marktguru set-country at  # Austria (default)
-npx @udondan/marktguru set-country de  # Germany
+npx @udondan/marktguru set-country de  # Germany (default)
+npx @udondan/marktguru set-country at  # Austria
 ```
 
 After switching country, re-run `login` — API keys are country-specific.
@@ -311,8 +310,8 @@ npx @udondan/marktguru config --json
 {
   "apiKey": "pCcm1AVCYa...",
   "apiKeySet": true,
-  "zipCode": "1010",
-  "country": "at",
+  "zipCode": "10115",
+  "country": "de",
   "configPath": "/Users/.../.marktguru/config.json"
 }
 ```

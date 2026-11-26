@@ -271,16 +271,16 @@ test('config shows defaults', async () => {
     [
       'Configuration:',
       '  API Key: (not set)',
-      '  ZIP Code: (default: 1010)',
-      '  Country: at',
+      '  ZIP Code: (default: 10115)',
+      '  Country: de',
       `  Config file: ${configPath}`,
     ].join('\n'),
   );
   assert.deepEqual(JSON.parse(`{${jsonOutput}`), {
     apiKey: null,
     apiKeySet: false,
-    zipCode: '1010',
-    country: 'at',
+    zipCode: '10115',
+    country: 'de',
     configPath,
   });
 });

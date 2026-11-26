@@ -1,11 +1,10 @@
-import { VALID_COUNTRIES } from './config.js';
+import { DEFAULT_COUNTRY, VALID_COUNTRIES, defaultZipCode } from './config.js';
 
 interface ExtractOptions {
   log?: (message: string) => void;
   country?: string;
 }
 
-const DEFAULT_ZIP_CODE = '1010';
 const MAX_SCRIPTS = 20;
 const TIMEOUT_MS = 15000;
 
@@ -81,8 +80,12 @@ function findCandidates(text: string): string[] {
   return [...candidates];
 }
 
-async function validateKey(apiKey: string, apiBase: string): Promise<boolean> {
-  const url = `${apiBase}/offers/search?as=web&q=test&limit=1&zipCode=${DEFAULT_ZIP_CODE}`;
+async function validateKey(
+  apiKey: string,
+  apiBase: string,
+  zipCode: string,
+): Promise<boolean> {
+  const url = `${apiBase}/offers/search?as=web&q=test&limit=1&zipCode=${zipCode}`;
   const res = await fetch(url, {
     headers: {
       'x-apikey': apiKey,
@@ -97,7 +100,7 @@ export async function extractApiKey(
   options: ExtractOptions = {},
 ): Promise<string> {
   const log = options.log;
-  const country = options.country ?? 'at';
+  const country = options.country ?? DEFAULT_COUNTRY;
   if (!(VALID_COUNTRIES as readonly string[]).includes(country)) {
     throw new Error(
       `Unsupported country "${country}". Valid options: ${VALID_COUNTRIES.join(', ')}`,
@@ -139,7 +142,7 @@ export async function extractApiKey(
   }
 
   for (const candidate of candidates) {
-    if (await validateKey(candidate, apiBase)) {
+    if (await validateKey(candidate, apiBase, defaultZipCode(country))) {
       return candidate;
     }
   }

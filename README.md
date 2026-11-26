@@ -17,7 +17,7 @@
 > [!NOTE]
 > Unofficial community project. Not affiliated with, endorsed or authorized by marktguru.
 
-Marktguru supermarket deals in Austria and Germany, as a CLI, a local HTTP
+Marktguru supermarket deals in Germany and Austria, as a CLI, a local HTTP
 API and an MCP server.
 
 This is a maintained fork of [manmal/marktguru-cli](https://github.com/manmal/marktguru-cli), published as [`@udondan/marktguru`](https://www.npmjs.com/package/@udondan/marktguru)
@@ -98,13 +98,13 @@ marktguru search syntax
 Set a default ZIP code:
 
 ```bash
-marktguru set-zip 1010
+marktguru set-zip 80331
 ```
 
-Set a default country (`at` or `de`, default: `at`):
+Set a default country (`de` or `at`, default: `de`):
 
 ```bash
-marktguru set-country de
+marktguru set-country at
 ```
 
 Show config:
@@ -300,7 +300,7 @@ which starts it on demand and passes its tools on to the connected clients.
    `make docker` builds the image locally and does the same
    (`make docker-register PROFILE=<id>` for another profile).
 
-2. Optionally set the default country and ZIP code (Austria and 1010
+2. Optionally set the default country and ZIP code (Germany and 10115
    otherwise):
 
    ```bash
@@ -350,6 +350,10 @@ override the country and default ZIP code of the config file for `search`,
 `serve` and `mcp`. They are not saved. The stored API key belongs to the
 country in the config file; searches in another country fetch a key for it
 and keep it in memory only.
+
+Without a ZIP code, searches use 10115 (Berlin) in Germany and 1010 (Vienna)
+in Austria. Germany is the default country since version 1.2.0; config files
+of older versions that don't name a country keep Austria.
 
 ## Disclaimer
 

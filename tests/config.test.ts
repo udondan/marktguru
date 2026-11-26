@@ -5,8 +5,13 @@ import { join } from 'node:path';
 import { isolateHome } from './helpers.ts';
 
 const home = await isolateHome();
-const { getConfig, getFileConfig, saveConfig, DEFAULT_COUNTRY } =
-  await import('../dist/config.js');
+const {
+  getConfig,
+  getFileConfig,
+  saveConfig,
+  defaultZipCode,
+  DEFAULT_COUNTRY,
+} = await import('../dist/config.js');
 const configDir = join(home, '.marktguru');
 const configFile = join(configDir, 'config.json');
 
@@ -100,4 +105,34 @@ test('empty environment variables count as unset', async () => {
     delete process.env.MARKTGURU_COUNTRY;
     delete process.env.MARKTGURU_ZIP;
   }
+});
+
+test('a config file without a country belongs to Austria', async () => {
+  // Written by a version that defaulted to Austria and didn't store it.
+  await mkdir(configDir, { recursive: true });
+  await writeFile(configFile, JSON.stringify({ apiKey: 'at-key' }));
+
+  assert.equal((await getConfig()).country, 'at');
+  assert.equal((await getFileConfig()).country, 'at');
+
+  await saveConfig({ zipCode: '1020' });
+  const persisted: unknown = JSON.parse(await readFile(configFile, 'utf-8'));
+  assert.deepEqual(persisted, {
+    country: 'at',
+    apiKey: 'at-key',
+    zipCode: '1020',
+  });
+});
+
+test('saveConfig stores the default country in a new config file', async () => {
+  await saveConfig({ apiKey: 'de-key' });
+
+  const persisted: unknown = JSON.parse(await readFile(configFile, 'utf-8'));
+  assert.deepEqual(persisted, { country: 'de', apiKey: 'de-key' });
+});
+
+test('defaultZipCode depends on the country', () => {
+  assert.equal(defaultZipCode('de'), '10115');
+  assert.equal(defaultZipCode('at'), '1010');
+  assert.equal(defaultZipCode('fr'), '10115');
 });

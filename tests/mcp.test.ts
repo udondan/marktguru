@@ -63,7 +63,7 @@ function site() {
 }
 
 test.beforeEach(async () => {
-  await saveConfig({ apiKey: 'stored-key' });
+  await saveConfig({ apiKey: 'stored-key', country: 'at' });
 });
 
 test.afterEach(async () => {
