@@ -9,6 +9,8 @@ export function getApiBase(country: string): string {
   return `https://api.marktguru.${country}/api/v1`;
 }
 
+// Only the fields the CLI reads. The API returns more, which `--json-full`
+// passes through unchanged.
 export interface Offer {
   id: number;
   price: number;
@@ -45,6 +47,12 @@ export interface SearchResult {
     brands: { id: number; name: string; resultsCount: number }[];
     categories: { id: number; name: string; resultsCount: number }[];
   };
+}
+
+// A search result after the client-side retailer filter and limit, with the
+// query it was made for.
+export interface FullSearchResult extends SearchResult {
+  query: string;
 }
 
 export interface SearchOptions {

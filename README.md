@@ -115,7 +115,11 @@ Available for both `search raw` and `search build`:
 - `-z, --zip <code>`: ZIP code for location-based results
 - `-n, --limit <number>`: Number of results (default: 10)
 - `-r, --retailer <name>`: Filter by retailer (client-side)
-- `-j, --json`: JSON output
+- `-j, --json`: JSON output, reduced to a few fields per offer
+- `--json-full`: The complete API response as JSON (`query`, `totalResults`,
+  `results` with every offer field, `filters`). The retailer filter and limit
+  still apply. The shape follows the upstream Marktguru API and may change
+  when it does. Takes precedence over `--json`.
 
 If no API key is configured, `search` will automatically run `login` to extract one.
 

@@ -77,6 +77,7 @@ npx @udondan/marktguru-cli search raw "Cola" --json
 | `--retailer <name>` / `-r` | Filter by retailer (e.g., SPAR, BILLA, HOFER) | all            |
 | `--zip <code>` / `-z`      | ZIP code for location-based results           | config default |
 | `--json` / `-j`            | Output JSON                                   | false          |
+| `--json-full`              | Output the complete API response as JSON      | false          |
 
 ### Structured Builder
 
@@ -198,6 +199,39 @@ npx @udondan/marktguru-cli search raw "Cola" --limit 3 --json
 | `expires`         | Offer expiration date (YYYY-MM-DD)        |
 | `discountPercent` | Discount percentage (null if not on sale) |
 | `externalUrl`     | Direct link to retailer (optional)        |
+
+### Full JSON Output
+
+`--json-full` prints the complete API response instead, for fields `--json`
+drops (images, categories, all advertisers, raw validity dates) and the
+`filters` facets. `--retailer` and `--limit` still apply, and `totalResults`
+is the count after the retailer filter. It takes precedence over `--json`.
+
+```bash
+npx @udondan/marktguru-cli search raw "Cola" --limit 3 --json-full
+```
+
+```json
+{
+  "query": "Cola",
+  "totalResults": 23,
+  "results": [
+    {
+      "id": 12345,
+      "price": 0.67,
+      "oldPrice": 1.35,
+      "product": { "id": 678, "name": "Cola" },
+      "brand": { "name": "Coca-Cola" },
+      "advertisers": [{ "name": "BILLA" }],
+      "validityDates": [{ "from": "...", "to": "..." }]
+    }
+  ],
+  "filters": { "retailers": [], "brands": [], "categories": [] }
+}
+```
+
+The offer objects are passed through from the Marktguru API (shortened above),
+so their fields follow the upstream API and may change.
 
 ---
 

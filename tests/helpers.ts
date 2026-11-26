@@ -4,7 +4,7 @@ import { mock } from 'node:test';
 import { mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import type { Offer, SearchResult } from '../dist/api.js';
+import type { FullSearchResult, Offer, SearchResult } from '../dist/api.js';
 import type { SimpleOffer } from '../dist/commands/search.js';
 
 // config.ts derives the config path from the home directory when it is first
@@ -88,6 +88,9 @@ export interface SearchOutput {
   total: number;
   offers: SimpleOffer[];
 }
+
+// What `search --json-full` prints.
+export type FullSearchOutput = FullSearchResult;
 
 export function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {

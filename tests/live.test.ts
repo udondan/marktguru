@@ -7,7 +7,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { promisify } from 'node:util';
-import type { SearchOutput } from './helpers.ts';
+import type { FullSearchOutput, SearchOutput } from './helpers.ts';
 
 const run = promisify(execFile);
 const CLI = new URL('../dist/cli.js', import.meta.url).pathname;
@@ -52,6 +52,31 @@ for (const { country, zip } of COUNTRIES) {
           assert.equal(typeof offer.title, 'string');
           assert.equal(typeof offer.price, 'number');
         }
+
+        // The key is stored now, so this reuses it.
+        const full = await cli(
+          'search',
+          'raw',
+          'milch',
+          '--zip',
+          zip,
+          '--limit',
+          '5',
+          '--json-full',
+        );
+        const fullData = JSON.parse(full.stdout) as FullSearchOutput;
+
+        assert.equal(fullData.query, 'milch');
+        assert.ok(fullData.totalResults > 0);
+        assert.ok(fullData.results.length > 0);
+        assert.ok(fullData.results.length <= 5);
+        for (const offer of fullData.results) {
+          assert.equal(typeof offer.id, 'number');
+          assert.equal(typeof offer.product.name, 'string');
+          assert.ok(Array.isArray(offer.advertisers));
+        }
+        assert.equal(typeof fullData.filters, 'object');
+        assert.ok(Array.isArray(fullData.filters.retailers));
       } finally {
         await rm(home, { recursive: true, force: true });
       }

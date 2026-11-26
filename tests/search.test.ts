@@ -10,6 +10,7 @@ import {
   text,
   makeOffer,
   makeResult,
+  type FullSearchOutput,
   type SearchOutput,
 } from './helpers.ts';
 import type { SearchResult } from '../dist/api.js';
@@ -236,6 +237,95 @@ test('search raw rejects an invalid limit', async () => {
   assert.match(io.stderr, /Error: Limit must be a positive number\./);
 });
 
+test('search raw prints the full API response with --json-full', async () => {
+  await saveConfig({ apiKey: 'stored-key' });
+  const offer = { ...makeOffer(), images: { count: 1 }, category: 'Snacks' };
+  const filters = {
+    retailers: [{ id: 1, name: 'BILLA PLUS', resultsCount: 1 }],
+    brands: [],
+    categories: [],
+  };
+  const calls = mockFetch(() =>
+    // The live API sends `filters` first.
+    json({ filters, totalResults: 1, results: [offer], extra: true }),
+  );
+  const io = captureIo();
+
+  await searchRawCommand('chips', { jsonFull: true, zip: '1020', limit: 5 });
+
+  const url = new URL(calls[0].url);
+  assert.equal(url.searchParams.get('zipCode'), '1020');
+  assert.equal(url.searchParams.get('limit'), '5');
+  const output = JSON.parse(io.stdout) as FullSearchOutput;
+  assert.deepEqual(output, {
+    query: 'chips',
+    totalResults: 1,
+    results: [offer],
+    filters,
+    extra: true,
+  });
+  assert.deepEqual(Object.keys(output).slice(0, 4), [
+    'query',
+    'totalResults',
+    'results',
+    'filters',
+  ]);
+});
+
+test('search raw --json-full applies the retailer filter and limit', async () => {
+  await saveConfig({ apiKey: 'stored-key' });
+  const calls = api(
+    makeResult(
+      [
+        makeOffer({ id: 1, advertisers: [{ name: 'SPAR' }] }),
+        makeOffer({ id: 2, advertisers: [{ name: 'BILLA' }] }),
+        makeOffer({ id: 3, advertisers: [{ name: 'Interspar' }] }),
+        makeOffer({ id: 4, advertisers: [{ name: 'EUROSPAR' }] }),
+      ],
+      { totalResults: 250 },
+    ),
+  );
+  const io = captureIo();
+
+  await searchRawCommand('chips', {
+    jsonFull: true,
+    retailer: 'spar',
+    limit: 2,
+  });
+
+  assert.equal(new URL(calls[0].url).searchParams.get('limit'), '100');
+  const output = JSON.parse(io.stdout) as FullSearchOutput;
+  assert.equal(output.totalResults, 2);
+  assert.deepEqual(
+    output.results.map((offer) => offer.id),
+    [1, 3],
+  );
+});
+
+test('search raw prefers --json-full over --json', async () => {
+  await saveConfig({ apiKey: 'stored-key' });
+  api(makeResult([makeOffer()]));
+  const io = captureIo();
+
+  await searchRawCommand('chips', { json: true, jsonFull: true });
+
+  const output = JSON.parse(io.stdout) as FullSearchOutput;
+  assert.deepEqual(output.results, [makeOffer()]);
+});
+
+test('search build prints the full API response with --json-full', async () => {
+  await saveConfig({ apiKey: 'stored-key' });
+  const calls = api(makeResult([makeOffer()]));
+  const io = captureIo();
+
+  await searchBuildCommand({ term: ['kellys'], jsonFull: true });
+
+  assert.equal(new URL(calls[0].url).searchParams.get('q'), 'kellys');
+  const output = JSON.parse(io.stdout) as FullSearchOutput;
+  assert.equal(output.query, 'kellys');
+  assert.deepEqual(output.results, [makeOffer()]);
+});
+
 // A site whose app.js embeds `key`, which the search endpoint accepts.
 function siteWithKey(key: string, result: SearchResult) {
   return mockFetch((url, init) => {
@@ -319,4 +409,17 @@ test('search build fails without query parts', async () => {
 
   assert.equal(calls.length, 0);
   assert.match(io.stderr, /Error: No query parts provided/);
+});
+
+test('search logs in to stderr with --json-full', async () => {
+  siteWithKey('auto-key-1234567890', makeResult([]));
+  const io = captureIo();
+
+  await searchRawCommand('chips', { jsonFull: true });
+
+  assert.match(io.stderr, /^No API key configured\. Running login\.\.\./);
+  assert.deepEqual(JSON.parse(io.stdout), {
+    query: 'chips',
+    ...makeResult([]),
+  });
 });
