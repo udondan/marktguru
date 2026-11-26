@@ -286,7 +286,7 @@ name run the CLI instead.
 
 ## Human-Readable Output
 
-```
+```text
 Found 147 offers for "Milch":
 
 Premium Bergbauern H-Milch [Salzburg Milch]
