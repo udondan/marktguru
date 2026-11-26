@@ -4,7 +4,7 @@ name: marktguru
 type: server
 image: udondan/marktguru:latest
 title: Marktguru
-description: Current supermarket deals from weekly leaflets in Austria and Germany, via Marktguru
+description: Current supermarket deals from weekly leaflets in Germany and Austria, via Marktguru
 # The gateway leaves out variables whose config value isn't set: the server
 # then searches in Austria near ZIP code 1010. Each search can override both.
 env:
@@ -19,7 +19,7 @@ config:
     properties:
       country:
         type: string
-        description: at (Austria, default) or de (Germany)
+        description: de (Germany) or at (Austria, default)
       zip:
         type: string
         description: ZIP code for location-based results, e.g. 10115

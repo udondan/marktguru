@@ -17,7 +17,7 @@
 > [!NOTE]
 > Unofficial community project. Not affiliated with, endorsed or authorized by marktguru.
 
-Marktguru supermarket deals in Austria and Germany, as a CLI, a local HTTP
+Marktguru supermarket deals in Germany and Austria, as a CLI, a local HTTP
 API and an MCP server.
 
 This is a maintained fork of [manmal/marktguru-cli](https://github.com/manmal/marktguru-cli), published as [`@udondan/marktguru`](https://www.npmjs.com/package/@udondan/marktguru)

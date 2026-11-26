@@ -14,7 +14,7 @@ import {
 
 const INSTRUCTIONS = [
   'Searches current supermarket deals (offers from weekly leaflets) on',
-  'Marktguru in Austria (at) and Germany (de). The API key is fetched',
+  'Marktguru in Germany (de) and Austria (at). The API key is fetched',
   'automatically. Country and ZIP code default to the configuration',
   '(MARKTGURU_COUNTRY, MARKTGURU_ZIP, or ~/.marktguru/config.json) and can be',
   'set per search.',
@@ -56,7 +56,7 @@ const searchInput = {
   country: z
     .enum(VALID_COUNTRIES)
     .optional()
-    .describe('Country: at (Austria) or de (Germany)'),
+    .describe('Country: de (Germany) or at (Austria)'),
   retailer: z
     .string()
     .optional()
@@ -100,7 +100,7 @@ export function createServer(version: string): McpServer {
     {
       title: 'Search supermarket deals',
       description:
-        'Search current supermarket deals on Marktguru (AT/DE) with the Marktguru query syntax.',
+        'Search current supermarket deals on Marktguru (DE/AT) with the Marktguru query syntax.',
       inputSchema: searchInput,
       annotations: {
         readOnlyHint: true,
