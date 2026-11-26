@@ -1,6 +1,6 @@
 ---
 name: marktguru-grocery-deals
-description: Look up grocery deals and offers via Marktguru CLI/API. Use when user asks about supermarket discounts, product prices, current promotions, or comparing deals across Austrian or German retailers (Hofer, Billa, Spar, Lidl, Penny, REWE, Kaufland, etc.).
+description: Look up grocery deals and offers via the marktguru CLI, HTTP API or MCP server. Use when user asks about supermarket discounts, product prices, current promotions, or comparing deals across Austrian or German retailers (Hofer, Billa, Spar, Lidl, Penny, REWE, Kaufland, etc.).
 ---
 
 # Marktguru Grocery Deals
@@ -28,7 +28,7 @@ Query grocery deals from Marktguru in Austria and Germany. Supports raw queries,
 ### Login (HTTP scan)
 
 ```bash
-npx @udondan/marktguru-cli login
+npx @udondan/marktguru login
 ```
 
 Scans site HTML and boot scripts for embedded API keys. No browser automation required.
@@ -36,16 +36,16 @@ Scans site HTML and boot scripts for embedded API keys. No browser automation re
 ### Set Default ZIP Code
 
 ```bash
-npx @udondan/marktguru-cli set-zip 1010
-npx @udondan/marktguru-cli set-zip 8010  # Graz
-npx @udondan/marktguru-cli set-zip 10115  # Berlin (DE)
+npx @udondan/marktguru set-zip 1010
+npx @udondan/marktguru set-zip 8010  # Graz
+npx @udondan/marktguru set-zip 10115  # Berlin (DE)
 ```
 
 ### Set Default Country
 
 ```bash
-npx @udondan/marktguru-cli set-country at  # Austria (default)
-npx @udondan/marktguru-cli set-country de  # Germany
+npx @udondan/marktguru set-country at  # Austria (default)
+npx @udondan/marktguru set-country de  # Germany
 ```
 
 After switching country, re-run `login` — API keys are country-specific.
@@ -53,8 +53,8 @@ After switching country, re-run `login` — API keys are country-specific.
 ### Check Config
 
 ```bash
-npx @udondan/marktguru-cli config
-npx @udondan/marktguru-cli config --json
+npx @udondan/marktguru config
+npx @udondan/marktguru config --json
 ```
 
 ---
@@ -64,11 +64,11 @@ npx @udondan/marktguru-cli config --json
 ### Raw Query Search
 
 ```bash
-npx @udondan/marktguru-cli search raw "Milch"
-npx @udondan/marktguru-cli search raw "Milch" --limit 5
-npx @udondan/marktguru-cli search raw "Bier" --retailer HOFER
-npx @udondan/marktguru-cli search raw "Brot" --zip 8010
-npx @udondan/marktguru-cli search raw "Cola" --json
+npx @udondan/marktguru search raw "Milch"
+npx @udondan/marktguru search raw "Milch" --limit 5
+npx @udondan/marktguru search raw "Bier" --retailer HOFER
+npx @udondan/marktguru search raw "Brot" --zip 8010
+npx @udondan/marktguru search raw "Cola" --json
 ```
 
 ### Common Options
@@ -86,10 +86,10 @@ npx @udondan/marktguru-cli search raw "Cola" --json
 Build queries from flags instead of raw strings:
 
 ```bash
-npx @udondan/marktguru-cli search build --term butter --explain
-npx @udondan/marktguru-cli search build --or butter --or margarine --explain
-npx @udondan/marktguru-cli search build --phrase "frische milch" --limit 5
-npx @udondan/marktguru-cli search build --wildcard "jogh*" --retailer SPAR
+npx @udondan/marktguru search build --term butter --explain
+npx @udondan/marktguru search build --or butter --or margarine --explain
+npx @udondan/marktguru search build --phrase "frische milch" --limit 5
+npx @udondan/marktguru search build --wildcard "jogh*" --retailer SPAR
 ```
 
 | Flag                 | Description                                |
@@ -118,19 +118,19 @@ npx @udondan/marktguru-cli search build --wildcard "jogh*" --retailer SPAR
 
 ```bash
 # Simple term
-npx @udondan/marktguru-cli search raw "Butter"
+npx @udondan/marktguru search raw "Butter"
 
 # OR logic
-npx @udondan/marktguru-cli search raw "Käse OR Schinken"
+npx @udondan/marktguru search raw "Käse OR Schinken"
 
 # Wildcard
-npx @udondan/marktguru-cli search raw "Bio*"
+npx @udondan/marktguru search raw "Bio*"
 
 # Combined with retailer filter
-npx @udondan/marktguru-cli search raw "Bier" --retailer HOFER --limit 10
+npx @udondan/marktguru search raw "Bier" --retailer HOFER --limit 10
 
 # Exact phrase
-npx @udondan/marktguru-cli search raw '"Coca Cola"'
+npx @udondan/marktguru search raw '"Coca Cola"'
 ```
 
 ---
@@ -159,7 +159,7 @@ npx @udondan/marktguru-cli search raw '"Coca Cola"'
 ## JSON Output
 
 ```bash
-npx @udondan/marktguru-cli search raw "Cola" --limit 3 --json
+npx @udondan/marktguru search raw "Cola" --limit 3 --json
 ```
 
 ```json
@@ -210,7 +210,7 @@ drops (images, categories, all advertisers, raw validity dates) and the
 is the count after the retailer filter. It takes precedence over `--json`.
 
 ```bash
-npx @udondan/marktguru-cli search raw "Cola" --limit 3 --json-full
+npx @udondan/marktguru search raw "Cola" --limit 3 --json-full
 ```
 
 ```json
@@ -255,7 +255,7 @@ returns the same JSON as `--json-full`; `GET /health` returns
 `{"success": true}`.
 
 ```bash
-npx @udondan/marktguru-cli serve --port 3000
+npx @udondan/marktguru serve --port 3000
 curl 'http://127.0.0.1:3000/search?q=Milch&limit=5'
 ```
 
@@ -275,7 +275,7 @@ get 403. Errors use `{"success": false, "error": "..."}`.
 `--json-full`). It logs in automatically on the first search.
 
 ```bash
-claude mcp add marktguru -- npx -y @udondan/marktguru-cli mcp
+claude mcp add marktguru -- npx -y @udondan/marktguru mcp
 ```
 
 The Docker image `udondan/marktguru` starts the same server without
@@ -304,7 +304,7 @@ Premium Bergbauern H-Milch [Salzburg Milch]
 Credentials and settings stored at `~/.marktguru/config.json`.
 
 ```bash
-npx @udondan/marktguru-cli config --json
+npx @udondan/marktguru config --json
 ```
 
 ```json
@@ -331,7 +331,7 @@ memory only.
 | Login fails           | Site structure may have changed. Re-run `login` or check for CLI updates.       |
 | No results            | Try broader terms, wildcards (`*`), or alternative spellings.                   |
 | Wrong location        | Set ZIP code with `set-zip` or use `--zip` flag.                                |
-| API key expired       | Re-run `npx @udondan/marktguru-cli login` to refresh.                           |
+| API key expired       | Re-run `npx @udondan/marktguru login` to refresh.                               |
 | Wrong country results | Run `set-country de` (or `at`), then `login` again — keys are country-specific. |
 
 ---
