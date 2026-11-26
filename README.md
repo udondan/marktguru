@@ -1,10 +1,18 @@
 # marktguru 🧘‍♂️
 
-[![Test](https://github.com/udondan/marktguru/actions/workflows/test.yml/badge.svg)](https://github.com/udondan/marktguru/actions/workflows/test.yml)
-[![npm](https://img.shields.io/npm/v/@udondan/marktguru.svg)](https://www.npmjs.com/package/@udondan/marktguru)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/udondan/marktguru/main/.github/assets/banner-dark.webp">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/udondan/marktguru/main/.github/assets/banner-light.webp">
+  <img alt="marktguru – Supermarket deals, programmable. CLI / HTTP API / MCP" src="https://raw.githubusercontent.com/udondan/marktguru/main/.github/assets/banner-light.webp">
+</picture>
+
+[![npm](https://img.shields.io/npm/v/@udondan/marktguru)](https://www.npmjs.com/package/@udondan/marktguru)
+[![Docker](https://img.shields.io/docker/v/udondan/marktguru?sort=semver&label=docker)](https://hub.docker.com/r/udondan/marktguru)
+[![Node.js](https://img.shields.io/node/v/@udondan/marktguru)](https://www.npmjs.com/package/@udondan/marktguru)
+[![Test](https://github.com/udondan/marktguru/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/udondan/marktguru/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/udondan/marktguru/graph/badge.svg)](https://codecov.io/gh/udondan/marktguru)
 [![Maintainability](https://qlty.sh/gh/udondan/projects/marktguru/maintainability.svg)](https://qlty.sh/gh/udondan/projects/marktguru)
-[![license](https://img.shields.io/github/license/udondan/marktguru.svg)](https://github.com/udondan/marktguru/blob/main/LICENSE)
+[![License](https://img.shields.io/github/license/udondan/marktguru)](https://github.com/udondan/marktguru/blob/main/LICENSE)
 
 > [!NOTE]
 > Unofficial community project. Not affiliated with, endorsed or authorized by marktguru.
@@ -15,6 +23,27 @@ API and an MCP server.
 This is a maintained fork of [manmal/marktguru-cli](https://github.com/manmal/marktguru-cli), published as [`@udondan/marktguru`](https://www.npmjs.com/package/@udondan/marktguru)
 (formerly [`@udondan/marktguru-cli`](https://www.npmjs.com/package/@udondan/marktguru-cli)).
 
+## Table of Contents
+
+- [AI Agent Skill](#ai-agent-skill)
+- [Quick Start (Recommended)](#quick-start-recommended)
+- [Requirements](#requirements)
+- [Commands](#commands)
+- [Also Working (Install Locally)](#also-working-install-locally)
+- [Search Options](#search-options)
+- [HTTP API](#http-api)
+- [MCP Server](#mcp-server)
+  - [Claude Code](#claude-code)
+  - [Claude Desktop and other clients](#claude-desktop-and-other-clients)
+- [Docker](#docker)
+  - [Docker MCP Toolkit](#docker-mcp-toolkit)
+- [Query Syntax (Observed)](#query-syntax-observed)
+- [Notes on `login`](#notes-on-login)
+- [Config Location](#config-location)
+- [Disclaimer](#disclaimer)
+
+---
+
 ## AI Agent Skill
 
 Install into your coding agent with the [`skills`](https://skills.sh) CLI:
@@ -23,7 +52,7 @@ Install into your coding agent with the [`skills`](https://skills.sh) CLI:
 npx skills add udondan/marktguru
 ```
 
-Or read [skills/marktguru-grocery-deals/SKILL.md](skills/marktguru-grocery-deals/SKILL.md) directly — a comprehensive reference designed for AI coding agents.
+Or read [skills/marktguru-grocery-deals/SKILL.md](https://github.com/udondan/marktguru/blob/main/skills/marktguru-grocery-deals/SKILL.md) directly — a comprehensive reference designed for AI coding agents.
 
 ## Quick Start (Recommended)
 
@@ -37,7 +66,7 @@ npx --yes @udondan/marktguru search build --term milch --or soja
 
 ## Requirements
 
-- Node.js 18+ (built-in `fetch`)
+- Node.js 22.12+
 - Works with `npm`, `pnpm`, and `bun`
 
 ## Commands
@@ -252,7 +281,7 @@ With the [Docker MCP Toolkit](https://docs.docker.com/ai/mcp-catalog-and-toolkit
 of Docker Desktop, the server runs as a container behind the MCP Gateway,
 which starts it on demand and passes its tools on to the connected clients.
 
-1. Download the server definition [`docker-mcp.yml`](docker-mcp.yml) and add it
+1. Download the server definition [`docker-mcp.yml`](https://github.com/udondan/marktguru/blob/main/docker-mcp.yml) and add it
    to a Toolkit profile. The Toolkit only reads such files from its catalogs
    directory:
 
