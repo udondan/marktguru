@@ -6,7 +6,7 @@
 [![Test](https://github.com/udondan/marktguru/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/udondan/marktguru/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/udondan/marktguru/graph/badge.svg)](https://codecov.io/gh/udondan/marktguru)
 [![Maintainability](https://qlty.sh/gh/udondan/projects/marktguru/maintainability.svg)](https://qlty.sh/gh/udondan/projects/marktguru)
-[![License](https://img.shields.io/github/license/udondan/marktguru)](LICENSE)
+[![License](https://img.shields.io/github/license/udondan/marktguru)](https://github.com/udondan/marktguru/blob/main/LICENSE)
 
 > [!NOTE]
 > Unofficial community project. Not affiliated with, endorsed or authorized by marktguru.
@@ -46,7 +46,7 @@ Install into your coding agent with the [`skills`](https://skills.sh) CLI:
 npx skills add udondan/marktguru
 ```
 
-Or read [skills/marktguru-grocery-deals/SKILL.md](skills/marktguru-grocery-deals/SKILL.md) directly — a comprehensive reference designed for AI coding agents.
+Or read [skills/marktguru-grocery-deals/SKILL.md](https://github.com/udondan/marktguru/blob/main/skills/marktguru-grocery-deals/SKILL.md) directly — a comprehensive reference designed for AI coding agents.
 
 ## Quick Start (Recommended)
 
@@ -275,7 +275,7 @@ With the [Docker MCP Toolkit](https://docs.docker.com/ai/mcp-catalog-and-toolkit
 of Docker Desktop, the server runs as a container behind the MCP Gateway,
 which starts it on demand and passes its tools on to the connected clients.
 
-1. Download the server definition [`docker-mcp.yml`](docker-mcp.yml) and add it
+1. Download the server definition [`docker-mcp.yml`](https://github.com/udondan/marktguru/blob/main/docker-mcp.yml) and add it
    to a Toolkit profile. The Toolkit only reads such files from its catalogs
    directory:
 
