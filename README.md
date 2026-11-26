@@ -1,24 +1,26 @@
-# marktguru-cli 🧘‍♂️
+# marktguru 🧘‍♂️
 
-[![Test](https://github.com/udondan/marktguru-cli/actions/workflows/test.yml/badge.svg)](https://github.com/udondan/marktguru-cli/actions/workflows/test.yml)
-[![npm](https://img.shields.io/npm/v/@udondan/marktguru-cli.svg)](https://www.npmjs.com/package/@udondan/marktguru-cli)
-[![codecov](https://codecov.io/gh/udondan/marktguru-cli/graph/badge.svg)](https://codecov.io/gh/udondan/marktguru-cli)
-[![Maintainability](https://qlty.sh/gh/udondan/projects/marktguru-cli/maintainability.svg)](https://qlty.sh/gh/udondan/projects/marktguru-cli)
-[![license](https://img.shields.io/github/license/udondan/marktguru-cli.svg)](https://github.com/udondan/marktguru-cli/blob/main/LICENSE)
+[![Test](https://github.com/udondan/marktguru/actions/workflows/test.yml/badge.svg)](https://github.com/udondan/marktguru/actions/workflows/test.yml)
+[![npm](https://img.shields.io/npm/v/@udondan/marktguru.svg)](https://www.npmjs.com/package/@udondan/marktguru)
+[![codecov](https://codecov.io/gh/udondan/marktguru/graph/badge.svg)](https://codecov.io/gh/udondan/marktguru)
+[![Maintainability](https://qlty.sh/gh/udondan/projects/marktguru/maintainability.svg)](https://qlty.sh/gh/udondan/projects/marktguru)
+[![license](https://img.shields.io/github/license/udondan/marktguru.svg)](https://github.com/udondan/marktguru/blob/main/LICENSE)
 
 > [!NOTE]
 > Unofficial community project. Not affiliated with, endorsed or authorized by marktguru.
 
-CLI for Marktguru supermarket deals in Austria and Germany.
+Marktguru supermarket deals in Austria and Germany, as a CLI, a local HTTP
+API and an MCP server.
 
-This is a maintained fork of [manmal/marktguru-cli](https://github.com/manmal/marktguru-cli), published as [`@udondan/marktguru-cli`](https://www.npmjs.com/package/@udondan/marktguru-cli).
+This is a maintained fork of [manmal/marktguru-cli](https://github.com/manmal/marktguru-cli), published as [`@udondan/marktguru`](https://www.npmjs.com/package/@udondan/marktguru)
+(formerly [`@udondan/marktguru-cli`](https://www.npmjs.com/package/@udondan/marktguru-cli)).
 
 ## AI Agent Skill
 
 Install into your coding agent with the [`skills`](https://skills.sh) CLI:
 
 ```bash
-npx skills add udondan/marktguru-cli
+npx skills add udondan/marktguru
 ```
 
 Or read [skills/marktguru-grocery-deals/SKILL.md](skills/marktguru-grocery-deals/SKILL.md) directly — a comprehensive reference designed for AI coding agents.
@@ -28,9 +30,9 @@ Or read [skills/marktguru-grocery-deals/SKILL.md](skills/marktguru-grocery-deals
 Use `npx` to run without installing anything:
 
 ```bash
-npx --yes @udondan/marktguru-cli login
-npx --yes @udondan/marktguru-cli search raw "milch OR soja"
-npx --yes @udondan/marktguru-cli search build --term milch --or soja
+npx --yes @udondan/marktguru login
+npx --yes @udondan/marktguru search raw "milch OR soja"
+npx --yes @udondan/marktguru search build --term milch --or soja
 ```
 
 ## Requirements
@@ -198,7 +200,7 @@ search, like `search` does. Country and ZIP code default to the
 ### Claude Code
 
 ```bash
-claude mcp add marktguru -- npx -y @udondan/marktguru-cli mcp
+claude mcp add marktguru -- npx -y @udondan/marktguru mcp
 ```
 
 ### Claude Desktop and other clients
@@ -211,7 +213,7 @@ Add to the client's MCP configuration (for Claude Desktop
   "mcpServers": {
     "marktguru": {
       "command": "npx",
-      "args": ["-y", "@udondan/marktguru-cli", "mcp"],
+      "args": ["-y", "@udondan/marktguru", "mcp"],
       "env": { "MARKTGURU_COUNTRY": "de", "MARKTGURU_ZIP": "10115" }
     }
   }
@@ -240,7 +242,7 @@ The images are signed with [cosign](https://github.com/sigstore/cosign)
 
 ```bash
 cosign verify udondan/marktguru:latest \
-  --certificate-identity-regexp '^https://github.com/udondan/marktguru-cli/' \
+  --certificate-identity-regexp '^https://github.com/udondan/marktguru/' \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com
 ```
 
@@ -256,7 +258,7 @@ which starts it on demand and passes its tools on to the connected clients.
 
    ```bash
    mkdir -p ~/.docker/mcp/catalogs
-   curl -fsSL https://raw.githubusercontent.com/udondan/marktguru-cli/main/docker-mcp.yml -o ~/.docker/mcp/catalogs/marktguru.yml
+   curl -fsSL https://raw.githubusercontent.com/udondan/marktguru/main/docker-mcp.yml -o ~/.docker/mcp/catalogs/marktguru.yml
 
    # new profile "marktguru" ...
    docker mcp profile create --name marktguru --id marktguru --server "file://$HOME/.docker/mcp/catalogs/marktguru.yml"

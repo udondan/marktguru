@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "@udondan/marktguru-cli",
+      "name": "@udondan/marktguru",
       "dependencies": {
         "@modelcontextprotocol/sdk": "1.32.2",
         "commander": "15.1.0",

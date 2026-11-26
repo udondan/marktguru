@@ -1,7 +1,7 @@
 {
-  "name": "@udondan/marktguru-cli",
+  "name": "@udondan/marktguru",
   "version": "1.0.6",
-  "description": "CLI for Marktguru supermarket deals in Austria and Germany",
+  "description": "Marktguru supermarket deals in Austria and Germany: CLI, HTTP API and MCP server",
   "license": "MIT",
   "author": {
     "name": "Daniel Schroeder",
@@ -10,16 +10,18 @@
   "contributors": [
     "Manuel Maly"
   ],
-  "homepage": "https://github.com/udondan/marktguru-cli",
+  "homepage": "https://github.com/udondan/marktguru",
   "repository": {
     "type": "git",
-    "url": "https://github.com/udondan/marktguru-cli.git"
+    "url": "https://github.com/udondan/marktguru.git"
   },
   "bugs": {
-    "url": "https://github.com/udondan/marktguru-cli/issues"
+    "url": "https://github.com/udondan/marktguru/issues"
   },
   "keywords": [
     "cli",
+    "mcp",
+    "mcp-server",
     "marktguru",
     "grocery",
     "deals",
