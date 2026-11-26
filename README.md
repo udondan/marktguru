@@ -1,5 +1,11 @@
 # marktguru 🧘‍♂️
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/udondan/marktguru/main/.github/assets/banner-dark.webp">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/udondan/marktguru/main/.github/assets/banner-light.webp">
+  <img alt="marktguru – Supermarket deals, programmable. CLI / HTTP API / MCP" src="https://raw.githubusercontent.com/udondan/marktguru/main/.github/assets/banner-light.webp">
+</picture>
+
 [![npm](https://img.shields.io/npm/v/@udondan/marktguru)](https://www.npmjs.com/package/@udondan/marktguru)
 [![Docker](https://img.shields.io/docker/v/udondan/marktguru?sort=semver&label=docker)](https://hub.docker.com/r/udondan/marktguru)
 [![Node.js](https://img.shields.io/node/v/@udondan/marktguru)](https://www.npmjs.com/package/@udondan/marktguru)
