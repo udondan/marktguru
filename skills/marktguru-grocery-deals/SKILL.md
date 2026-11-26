@@ -223,7 +223,14 @@ npx @udondan/marktguru-cli search raw "Cola" --limit 3 --json-full
       "product": { "id": 678, "name": "Cola" },
       "brand": { "name": "Coca-Cola" },
       "advertisers": [{ "name": "BILLA" }],
-      "validityDates": [{ "from": "...", "to": "..." }]
+      "validityDates": [{ "from": "...", "to": "..." }],
+      "descriptionLines": [
+        "Cola [Coca-Cola]",
+        "€0.67 (was €1.35) -50%",
+        "div. Sorten 0,33 Liter",
+        "BILLA · 3 days left",
+        "https://shop.billa.at/produkte/..."
+      ]
     }
   ],
   "filters": { "retailers": [], "brands": [], "categories": [] }
@@ -231,7 +238,10 @@ npx @udondan/marktguru-cli search raw "Cola" --limit 3 --json-full
 ```
 
 The offer objects are passed through from the Marktguru API (shortened above),
-so their fields follow the upstream API and may change.
+so their fields follow the upstream API and may change. `descriptionLines` is
+added by the CLI: the lines the text output prints for the offer, without
+icons. Use it to show an offer to a person; its wording may change, so read
+data from the structured fields.
 
 ---
 

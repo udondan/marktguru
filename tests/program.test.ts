@@ -10,6 +10,7 @@ import {
   text,
   makeOffer,
   makeResult,
+  type FullSearchOutput,
 } from './helpers.ts';
 
 const home = await isolateHome();
@@ -120,10 +121,9 @@ test('search --json-full wins over the global --json', async () => {
 
   await cli('--json', 'search', 'raw', 'chips', '--json-full');
 
-  assert.deepEqual(JSON.parse(io.stdout), {
-    query: 'chips',
-    ...makeResult([makeOffer()]),
-  });
+  const output = JSON.parse(io.stdout) as FullSearchOutput;
+  assert.equal(output.query, 'chips');
+  assert.equal(output.results[0].descriptionLines[0], 'Test Chips [SnackCo]');
 });
 
 test('search rejects a limit that is not a positive integer', async () => {

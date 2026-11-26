@@ -13,12 +13,13 @@ import {
   type FullSearchOutput,
   type SearchOutput,
 } from './helpers.ts';
-import type { SearchResult } from '../dist/api.js';
+import type { Offer, SearchResult } from '../dist/api.js';
 
 const home = await isolateHome();
 const {
   formatOfferText,
   formatResultsText,
+  offerDescriptionLines,
   simplifyOffer,
   searchRawCommand,
   searchBuildCommand,
@@ -112,6 +113,73 @@ test('formatOfferText with minimal details', () => {
 test('formatOfferText skips the unit price without a volume', () => {
   const offer = makeOffer({ volume: null });
   assert.match(formatOfferText(offer), /💰 €1\.49 \(was €1\.99\) -25%$/m);
+});
+
+test('offerDescriptionLines with all details', () => {
+  const offer = makeOffer({
+    validityDates: [{ from: '2020-01-01', to: '2020-01-02' }],
+  });
+  assert.deepEqual(offerDescriptionLines(offer), [
+    'Test Chips [SnackCo]',
+    '€1.49 (was €1.99) -25% · €5.96/kg',
+    '250 g',
+    'BILLA PLUS · expired',
+    'https://shop.example/offer',
+  ]);
+});
+
+test('offerDescriptionLines without a discount or unit price', () => {
+  const offer = makeOffer({
+    oldPrice: null,
+    unit: null,
+    validityDates: [{ from: '2020-01-01', to: '2020-01-02' }],
+  });
+  assert.equal(offerDescriptionLines(offer)[1], '€1.49');
+});
+
+test('offerDescriptionLines with minimal details', () => {
+  const offer = makeOffer({
+    oldPrice: null,
+    brand: null,
+    description: '',
+    externalUrl: null,
+    advertisers: [],
+    validityDates: [],
+    unit: null,
+  });
+  assert.deepEqual(offerDescriptionLines(offer), [
+    'Test Chips',
+    '€1.49',
+    'Unknown · ',
+  ]);
+});
+
+test('offerDescriptionLines names the first of several advertisers', () => {
+  const offer = makeOffer({
+    advertisers: [{ name: 'SPAR' }, { name: 'INTERSPAR' }],
+    validityDates: [{ from: '2020-01-01', to: '2020-01-02' }],
+  });
+  assert.equal(offerDescriptionLines(offer)[3], 'SPAR · expired');
+});
+
+test('offerDescriptionLines match the text output without icons', () => {
+  const offers = [
+    makeOffer(),
+    makeOffer({ oldPrice: null, description: '', externalUrl: null }),
+    // A product name with characters from emoji ranges stays intact.
+    makeOffer({ product: { id: 3, name: 'Kaffee ☕ Bohnen' } }),
+  ];
+  for (const offer of offers) {
+    const [first, ...rest] = formatOfferText(offer).split('\n');
+    assert.deepEqual(offerDescriptionLines(offer), [
+      first,
+      ...rest.map((line) => line.replace(/^ {2}\S+ /u, '')),
+    ]);
+  }
+  assert.equal(
+    offerDescriptionLines(offers[2])[0],
+    'Kaffee ☕ Bohnen [SnackCo]',
+  );
 });
 
 test('simplifyOffer exposes externalUrl only when present', async () => {
@@ -237,6 +305,10 @@ test('search raw rejects an invalid limit', async () => {
   assert.match(io.stderr, /Error: Limit must be a positive number\./);
 });
 
+function withLines(offer: Offer) {
+  return { ...offer, descriptionLines: offerDescriptionLines(offer) };
+}
+
 test('search raw prints the full API response with --json-full', async () => {
   await saveConfig({ apiKey: 'stored-key' });
   const offer = { ...makeOffer(), images: { count: 1 }, category: 'Snacks' };
@@ -260,7 +332,7 @@ test('search raw prints the full API response with --json-full', async () => {
   assert.deepEqual(output, {
     query: 'chips',
     totalResults: 1,
-    results: [offer],
+    results: [{ ...offer, descriptionLines: offerDescriptionLines(offer) }],
     filters,
     extra: true,
   });
@@ -310,7 +382,7 @@ test('search raw prefers --json-full over --json', async () => {
   await searchRawCommand('chips', { json: true, jsonFull: true });
 
   const output = JSON.parse(io.stdout) as FullSearchOutput;
-  assert.deepEqual(output.results, [makeOffer()]);
+  assert.deepEqual(output.results, [withLines(makeOffer())]);
 });
 
 test('search build prints the full API response with --json-full', async () => {
@@ -323,7 +395,7 @@ test('search build prints the full API response with --json-full', async () => {
   assert.equal(new URL(calls[0].url).searchParams.get('q'), 'kellys');
   const output = JSON.parse(io.stdout) as FullSearchOutput;
   assert.equal(output.query, 'kellys');
-  assert.deepEqual(output.results, [makeOffer()]);
+  assert.deepEqual(output.results, [withLines(makeOffer())]);
 });
 
 // A site whose app.js embeds `key`, which the search endpoint accepts.
