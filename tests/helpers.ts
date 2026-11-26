@@ -4,8 +4,8 @@ import { mock } from 'node:test';
 import { mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import type { FullSearchResult, Offer, SearchResult } from '../dist/api.js';
-import type { SimpleOffer } from '../dist/commands/search.js';
+import type { Offer, SearchResult } from '../dist/api.js';
+import type { JsonFullResult, SimpleOffer } from '../dist/commands/search.js';
 
 // config.ts derives the config path from the home directory when it is first
 // imported, so call this before importing anything from dist/.
@@ -90,7 +90,7 @@ export interface SearchOutput {
 }
 
 // What `search --json-full` prints.
-export type FullSearchOutput = FullSearchResult;
+export type FullSearchOutput = JsonFullResult;
 
 export function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {

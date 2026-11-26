@@ -119,7 +119,9 @@ Available for both `search raw` and `search build`:
 - `--json-full`: The complete API response as JSON (`query`, `totalResults`,
   `results` with every offer field, `filters`). The retailer filter and limit
   still apply. The shape follows the upstream Marktguru API and may change
-  when it does. Takes precedence over `--json`.
+  when it does. Each offer also gets `descriptionLines`, the lines the text
+  output prints for it without icons; they are meant for display and their
+  wording may change. Takes precedence over `--json`.
 
 If no API key is configured, `search` will automatically run `login` to extract one.
 

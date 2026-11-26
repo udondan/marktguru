@@ -76,12 +76,19 @@ export interface SearchBuildOptions extends SearchCommandOptions {
 
 const DEFAULT_LIMIT = 10;
 
-export function formatOfferText(offer: Offer): string {
-  const lines: string[] = [];
+interface OfferLine {
+  icon?: string;
+  text: string;
+}
 
+// The lines describing an offer, shared by the text output and the
+// `descriptionLines` of `--json-full`.
+function offerLines(offer: Offer): OfferLine[] {
   // Product name and brand
   const brand = offer.brand?.name ? `[${offer.brand.name}]` : '';
-  lines.push(`${offer.product.name} ${brand}`.trim());
+  const lines: OfferLine[] = [
+    { text: `${offer.product.name} ${brand}`.trim() },
+  ];
 
   // Price line
   const discount = formatDiscount(offer.price, offer.oldPrice);
@@ -95,23 +102,34 @@ export function formatOfferText(offer: Offer): string {
       ? ` · ${formatPrice(offer.referencePrice)}/${offer.unit.shortName}`
       : '';
 
-  lines.push(`  💰 ${priceInfo}${unitInfo}`);
+  lines.push({ icon: '💰', text: `${priceInfo}${unitInfo}` });
 
   // Description
   if (offer.description) {
-    lines.push(`  📦 ${offer.description}`);
+    lines.push({ icon: '📦', text: offer.description });
   }
 
   // Retailer and validity
   const retailer = offer.advertisers[0]?.name || 'Unknown';
   const validity = formatValidity(offer.validityDates);
-  lines.push(`  🏪 ${retailer} · ${validity}`);
+  lines.push({ icon: '🏪', text: `${retailer} · ${validity}` });
 
   if (offer.externalUrl) {
-    lines.push(`  🔗 ${offer.externalUrl}`);
+    lines.push({ icon: '🔗', text: offer.externalUrl });
   }
 
-  return lines.join('\n');
+  return lines;
+}
+
+export function formatOfferText(offer: Offer): string {
+  return offerLines(offer)
+    .map(({ icon, text }) => (icon ? `  ${icon} ${text}` : text))
+    .join('\n');
+}
+
+// The text output lines of an offer without icons, meant for display.
+export function offerDescriptionLines(offer: Offer): string[] {
+  return offerLines(offer).map(({ text }) => text);
 }
 
 export function formatResultsText(result: SearchResult, query: string): string {
@@ -222,9 +240,22 @@ export async function performSearch(
   return { ...ordered, ...result, ...filtered };
 }
 
-// What `--json-full` prints: the API response, filtered and limited.
-export function toJsonFull(result: FullSearchResult): FullSearchResult {
-  return result;
+export type FullOffer = Offer & { descriptionLines: string[] };
+
+export interface JsonFullResult extends Omit<FullSearchResult, 'results'> {
+  results: FullOffer[];
+}
+
+// What `--json-full` prints: the API response, filtered and limited, with
+// the text output lines added to each offer.
+export function toJsonFull(result: FullSearchResult): JsonFullResult {
+  return {
+    ...result,
+    results: result.results.map((offer) => ({
+      ...offer,
+      descriptionLines: offerDescriptionLines(offer),
+    })),
+  };
 }
 
 async function runSearch(

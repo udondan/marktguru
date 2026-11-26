@@ -74,6 +74,10 @@ for (const { country, zip } of COUNTRIES) {
           assert.equal(typeof offer.id, 'number');
           assert.equal(typeof offer.product.name, 'string');
           assert.ok(Array.isArray(offer.advertisers));
+          assert.ok(offer.descriptionLines.length > 0);
+          for (const line of offer.descriptionLines) {
+            assert.equal(typeof line, 'string');
+          }
         }
         assert.equal(typeof fullData.filters, 'object');
         assert.ok(Array.isArray(fullData.filters.retailers));
