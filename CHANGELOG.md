@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/udondan/marktguru/compare/v1.1.0...v1.2.0) (2026-11-26)
+
+
+### Features
+
+* make Germany the default country ([#122](https://github.com/udondan/marktguru/issues/122)) ([d6579fa](https://github.com/udondan/marktguru/commit/d6579fae30cd9ea56b3df129be45739f6c1419f3))
+
 ## [1.1.0](https://github.com/udondan/marktguru/compare/v1.0.6...v1.1.0) (2026-11-26)
 
 
