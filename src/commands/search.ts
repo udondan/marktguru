@@ -216,13 +216,10 @@ export async function performSearch(
   }
 
   // Copy the API response so fields the CLI doesn't know pass through. The
-  // first object fixes the key order of the JSON output.
+  // first spread fixes the key order of the JSON output.
   const filtered = { totalResults, results: filteredResults };
-  return Object.assign(
-    { query, ...filtered, filters: result.filters },
-    result,
-    filtered,
-  );
+  const ordered = { query, ...filtered, filters: result.filters };
+  return { ...ordered, ...result, ...filtered };
 }
 
 // What `--json-full` prints: the API response, filtered and limited.
