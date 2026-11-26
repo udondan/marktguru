@@ -113,6 +113,19 @@ test('search build', async () => {
   assert.deepEqual(JSON.parse(io.stdout), { query, total: 0, offers: [] });
 });
 
+test('search --json-full wins over the global --json', async () => {
+  await saveConfig({ apiKey: 'stored-key' });
+  mockFetch(() => json(makeResult([makeOffer()])));
+  const io = captureIo();
+
+  await cli('--json', 'search', 'raw', 'chips', '--json-full');
+
+  assert.deepEqual(JSON.parse(io.stdout), {
+    query: 'chips',
+    ...makeResult([makeOffer()]),
+  });
+});
+
 test('search rejects a limit that is not a positive integer', async () => {
   const calls = mockFetch(() => json(makeResult([])));
   captureIo();

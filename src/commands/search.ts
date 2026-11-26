@@ -3,6 +3,7 @@ import {
   formatPrice,
   formatDiscount,
   formatValidity,
+  type FullSearchResult,
   type Offer,
   type SearchResult,
 } from '../api.js';
@@ -61,6 +62,7 @@ export interface SearchCommandOptions {
   limit?: number;
   retailer?: string;
   json?: boolean;
+  jsonFull?: boolean;
   explain?: boolean;
 }
 
@@ -155,13 +157,14 @@ function emitWarnings(warnings: string[]): void {
 }
 
 async function ensureApiKey(
-  json?: boolean,
+  quiet: boolean,
   country?: string,
 ): Promise<string | undefined> {
   const config = await getConfig();
   if (config.apiKey) return config.apiKey;
 
-  const log = json
+  // Keep stdout clean for JSON output.
+  const log = quiet
     ? (msg: string) => console.error(msg)
     : (msg: string) => console.log(msg);
   log('No API key configured. Running login...');
@@ -174,11 +177,16 @@ async function ensureApiKey(
   return apiKey;
 }
 
-async function runSearch(
+// Searches and applies the client-side retailer filter and limit. Logs from
+// the auto-login go to stderr when `json` or `jsonFull` is set.
+export async function performSearch(
   query: string,
   options: SearchCommandOptions,
-): Promise<void> {
-  const apiKey = await ensureApiKey(options.json, options.country);
+): Promise<FullSearchResult> {
+  const apiKey = await ensureApiKey(
+    options.json === true || options.jsonFull === true,
+    options.country,
+  );
   // Fetch more results if filtering by retailer (we'll filter client-side)
   const limit = normalizeLimit(options.limit);
   const fetchLimit = options.retailer ? Math.max(limit, 100) : limit;
@@ -207,20 +215,35 @@ async function runSearch(
     filteredResults = filteredResults.slice(0, limit);
   }
 
-  if (options.json) {
+  // Copy the API response so fields the CLI doesn't know pass through. The
+  // first spread fixes the key order of the JSON output.
+  const filtered = { totalResults, results: filteredResults };
+  const ordered = { query, ...filtered, filters: result.filters };
+  return { ...ordered, ...result, ...filtered };
+}
+
+// What `--json-full` prints: the API response, filtered and limited.
+export function toJsonFull(result: FullSearchResult): FullSearchResult {
+  return result;
+}
+
+async function runSearch(
+  query: string,
+  options: SearchCommandOptions,
+): Promise<void> {
+  const result = await performSearch(query, options);
+
+  if (options.jsonFull) {
+    console.log(JSON.stringify(toJsonFull(result), null, 2));
+  } else if (options.json) {
     const simple: SimpleSearchResult = {
       query,
-      total: totalResults,
-      offers: filteredResults.map(simplifyOffer),
+      total: result.totalResults,
+      offers: result.results.map(simplifyOffer),
     };
     console.log(JSON.stringify(simple, null, 2));
   } else {
-    console.log(
-      formatResultsText(
-        { ...result, results: filteredResults, totalResults },
-        query,
-      ),
-    );
+    console.log(formatResultsText(result, query));
   }
 }
 

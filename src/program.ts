@@ -51,7 +51,11 @@ function addSearchOptions(command: Command): Command {
       '-r, --retailer <name>',
       'Filter by retailer (e.g., SPAR, BILLA, HOFER)',
     )
-    .option('-j, --json', 'Output JSON');
+    .option('-j, --json', 'Output JSON')
+    .option(
+      '--json-full',
+      'Output the complete API response as JSON (takes precedence over --json)',
+    );
 }
 
 function registerSearchCommands(program: Command, getJsonFlag: JsonFlag): void {
