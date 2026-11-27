@@ -40,27 +40,33 @@ const searchInput = {
     .trim()
     .min(1)
     .describe(
-      'Marktguru query, e.g. `milch`, `"erdnuss snips"`, `kellys OR manner`',
+      'Product to search, in German, with the Marktguru syntax: words, "exact phrase", OR, * as wildcard, ( ) for groups; AND and NOT are not supported. E.g. `milch`, `"erdnuss snips"`, `kellys OR manner`, `kell*`',
     ),
   limit: z
     .number()
     .int()
     .positive()
     .optional()
-    .describe('Number of offers (default: 10)'),
+    .describe('Most offers to return. Default: 10'),
   zip: z
     .string()
     .regex(/^\d{4,5}$/)
     .optional()
-    .describe('ZIP code for location-based results'),
+    .describe(
+      'ZIP code of the area whose stores count, 5 digits in Germany or 4 in Austria, e.g. `10115`. Default: the configured ZIP code, else 10115 in Germany and 1010 in Austria',
+    ),
   country: z
     .enum(VALID_COUNTRIES)
     .optional()
-    .describe('Country: de (Germany) or at (Austria)'),
+    .describe(
+      'Country: de (Germany) or at (Austria), matching the ZIP code. Default: the configured country, else de',
+    ),
   retailer: z
     .string()
     .optional()
-    .describe('Only offers of retailers whose name contains this, e.g. BILLA'),
+    .describe(
+      'Only offers of retailers whose name contains this, ignoring case, e.g. `BILLA` or `rewe`. Searches up to 100 offers and filters them; `total` is then the number of offers of matching retailers',
+    ),
   format: z
     .enum(['text', 'json', 'json-full'])
     .default('text')
@@ -100,7 +106,7 @@ export function createServer(version: string): McpServer {
     {
       title: 'Search supermarket deals',
       description:
-        'Search current supermarket deals on Marktguru (DE/AT) with the Marktguru query syntax.',
+        'Searches the current supermarket deals (offers from weekly leaflets) on Marktguru in Germany or Austria. Returns the total number of matches and up to `limit` offers, each with title (brand, product, description), price in euros, retailer, the date the offer ends, the discount in percent against the old price where known, and a link. Only current offers are listed, no regular prices. Use it to find where a product is on sale, or to compare the deals of several retailers; one search per product, with OR for alternatives. Results depend on the location: `zip` and `country` default to the configuration, else Germany and 10115 (Berlin). Without a stored API key, the first search reads one from the Marktguru website and stores it in ~/.marktguru/config.json; nothing else is written.',
       inputSchema: searchInput,
       annotations: {
         readOnlyHint: true,
