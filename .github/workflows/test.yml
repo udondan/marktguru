@@ -114,6 +114,17 @@ jobs:
       - name: Test
         run: make test
 
+      # Lints the tool descriptions the MCP server lists with the deterministic
+      # checks of Glama's Tool Definition Quality Score (TDQS). Warnings fail
+      # the step, notes only go into the summary.
+      - name: Lint the MCP tool descriptions
+        run: |
+          status=0
+          make lint-tools TDQS_ARGS="--format markdown --output tdqs.md" || status=$?
+          cat tdqs.md
+          cat tdqs.md >> "$GITHUB_STEP_SUMMARY"
+          exit "$status"
+
       # main uploads its coverage in the Coverage workflow, without waiting
       # for the turn. For forks the action uploads without a token instead of OIDC.
       - name: Upload coverage to Codecov
