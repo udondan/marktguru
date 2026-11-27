@@ -21,7 +21,7 @@
 Marktguru supermarket deals in Germany and Austria, as a CLI, a local HTTP
 API and an MCP server.
 
-This is a maintained fork of [manmal/marktguru-cli](https://github.com/manmal/marktguru-cli), published as [`@udondan/marktguru`](https://www.npmjs.com/package/@udondan/marktguru)
+Originally forked from [manmal/marktguru-cli](https://github.com/manmal/marktguru-cli), now developed independently and published as [`@udondan/marktguru`](https://www.npmjs.com/package/@udondan/marktguru)
 (formerly [`@udondan/marktguru-cli`](https://www.npmjs.com/package/@udondan/marktguru-cli)).
 
 ## Table of Contents
