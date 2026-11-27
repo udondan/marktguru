@@ -9,6 +9,7 @@
 [![npm](https://img.shields.io/npm/v/@udondan/marktguru)](https://www.npmjs.com/package/@udondan/marktguru)
 [![Docker](https://img.shields.io/docker/v/udondan/marktguru?sort=semver&label=docker)](https://hub.docker.com/r/udondan/marktguru)
 [![Node.js](https://img.shields.io/node/v/@udondan/marktguru)](https://www.npmjs.com/package/@udondan/marktguru)
+[![udondan/marktguru MCP server](https://glama.ai/mcp/servers/udondan/marktguru/badges/score.svg)](https://glama.ai/mcp/servers/udondan/marktguru)
 [![Test](https://github.com/udondan/marktguru/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/udondan/marktguru/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/udondan/marktguru/graph/badge.svg)](https://codecov.io/gh/udondan/marktguru)
 [![Maintainability](https://qlty.sh/gh/udondan/projects/marktguru/maintainability.svg)](https://qlty.sh/gh/udondan/projects/marktguru)
