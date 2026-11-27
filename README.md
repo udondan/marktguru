@@ -226,6 +226,9 @@ stdio, so AI assistants can search deals directly. It has one read-only tool:
 search, like `search` does. Country and ZIP code default to the
 [config](#config-location) and can be set per search.
 
+The server is listed in the [MCP Registry](https://registry.modelcontextprotocol.io)
+as `io.github.udondan/marktguru`.
+
 ### Claude Code
 
 ```bash

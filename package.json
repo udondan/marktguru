@@ -1,6 +1,7 @@
 {
   "name": "@udondan/marktguru",
   "version": "1.2.0",
+  "mcpName": "io.github.udondan/marktguru",
   "description": "Marktguru supermarket deals in Germany and Austria: CLI, HTTP API and MCP server",
   "license": "MIT",
   "author": {
