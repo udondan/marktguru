@@ -201,7 +201,7 @@ export function createProgram(): Command {
     .description(
       'Marktguru supermarket deals (DE/AT): CLI, HTTP API and MCP server',
     )
-    .version('1.3.0') // x-release-please-version
+    .version('1.4.0') // x-release-please-version
     .option('-j, --json', 'Output JSON (for all commands)');
 
   program.addHelpText(
