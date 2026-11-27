@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/udondan/marktguru/compare/v1.3.0...v1.4.0) (2026-11-27)
+
+
+### Features
+
+* describe what the MCP tool returns and when to use it ([#131](https://github.com/udondan/marktguru/issues/131)) ([6e04391](https://github.com/udondan/marktguru/commit/6e04391b43e1d41ffb2798a728c4f48d2462c1f8))
+
 ## [1.3.0](https://github.com/udondan/marktguru/compare/v1.2.0...v1.3.0) (2026-11-27)
 
 
