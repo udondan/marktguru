@@ -15,6 +15,7 @@ prefer them:
 ```bash
 make install          # bun install --frozen-lockfile
 make eslint           # lint
+make lint-tools       # build, then lint the MCP tool descriptions (TDQS)
 make format           # prettier --write .
 make test             # build, then run the test suite under c8 (incl. live tests)
 make test-unit        # same, offline tests only (what the Coverage workflow runs)

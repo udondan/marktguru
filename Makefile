@@ -29,6 +29,13 @@ eslint: build
 	@bunx eslint .; \
 	echo "Passed"
 
+# The deterministic checks of Glama's Tool Definition Quality Score (TDQS)
+# for the tools of the built MCP server. Warnings fail. CI passes
+# TDQS_ARGS for a markdown report.
+lint-tools: build
+	@echo -e "$(TARGET_COLOR)Running tdqs lint$(NO_COLOR)"
+	@bun run lint:tools $(TDQS_ARGS)
+
 format:
 	@echo -e "$(TARGET_COLOR)Running prettier$(NO_COLOR)"
 	@bunx prettier --write .
