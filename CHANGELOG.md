@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/udondan/marktguru/compare/v1.2.0...v1.3.0) (2026-11-27)
+
+
+### Features
+
+* publish the MCP server to the MCP Registry ([#125](https://github.com/udondan/marktguru/issues/125)) ([a5cdb99](https://github.com/udondan/marktguru/commit/a5cdb99efb38051ef5df48726898578aa5d38082))
+
 ## [1.2.0](https://github.com/udondan/marktguru/compare/v1.1.0...v1.2.0) (2026-11-26)
 
 
