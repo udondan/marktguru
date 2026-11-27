@@ -3,7 +3,7 @@
   "name": "io.github.udondan/marktguru",
   "title": "marktguru",
   "description": "Search current supermarket deals from weekly leaflets on Marktguru in Germany and Austria",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "repository": {
     "url": "https://github.com/udondan/marktguru",
     "source": "github"
@@ -12,7 +12,7 @@
     {
       "registryType": "npm",
       "identifier": "@udondan/marktguru",
-      "version": "1.2.0",
+      "version": "1.3.0",
       "transport": {
         "type": "stdio"
       },
