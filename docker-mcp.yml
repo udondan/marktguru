@@ -1,0 +1,25 @@
+# Server definition for the Docker MCP Toolkit.
+# Add it to a profile with `make docker-register` (see README, section Docker MCP Toolkit).
+name: marktguru
+type: server
+image: udondan/marktguru:latest
+title: Marktguru
+description: Current supermarket deals from weekly leaflets in Germany and Austria, via Marktguru
+# The gateway leaves out variables whose config value isn't set: the server
+# then searches in Germany near ZIP code 10115. Each search can override both.
+env:
+  - name: MARKTGURU_COUNTRY
+    value: "{{marktguru.country}}"
+  - name: MARKTGURU_ZIP
+    value: "{{marktguru.zip}}"
+config:
+  - name: marktguru
+    description: Default country and ZIP code of searches
+    type: object
+    properties:
+      country:
+        type: string
+        description: de (Germany, default) or at (Austria)
+      zip:
+        type: string
+        description: ZIP code for location-based results, e.g. 10115

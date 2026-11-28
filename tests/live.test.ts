@@ -1,0 +1,109 @@
+// Live end-to-end tests: these hit marktguru.at/.de and api.marktguru.* for
+// real, so they catch the scraper breaking when Marktguru ships a new frontend.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { execFile } from 'node:child_process';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { promisify } from 'node:util';
+import {
+  spawnServer,
+  type FullSearchOutput,
+  type SearchOutput,
+} from './helpers.ts';
+
+const run = promisify(execFile);
+const CLI = new URL('../dist/cli.js', import.meta.url).pathname;
+
+const COUNTRIES = [
+  { country: 'at', zip: '1010' },
+  { country: 'de', zip: '10115' },
+];
+
+for (const { country, zip } of COUNTRIES) {
+  test(
+    `live: login and search in ${country}`,
+    { timeout: 120000 },
+    async () => {
+      // Isolated HOME so the test never reads or writes a real ~/.marktguru.
+      const home = await mkdtemp(join(tmpdir(), 'marktguru-live-'));
+      const env = { ...process.env };
+      env.HOME = home;
+      env.USERPROFILE = home;
+      const cli = (...args: string[]) =>
+        run(process.execPath, [CLI, ...args], { env });
+      try {
+        await cli('set-country', country);
+
+        // No key is stored yet, so search has to auto-login by scraping.
+        const { stdout } = await cli(
+          'search',
+          'raw',
+          'milch',
+          '--zip',
+          zip,
+          '--limit',
+          '5',
+          '--json',
+        );
+        const data = JSON.parse(stdout) as SearchOutput;
+
+        assert.ok(data.total > 0, `no results for "milch" in ${country}`);
+        assert.ok(data.offers.length > 0);
+        assert.ok(data.offers.length <= 5);
+        for (const offer of data.offers) {
+          assert.equal(typeof offer.title, 'string');
+          assert.equal(typeof offer.price, 'number');
+        }
+
+        // The key is stored now, so this reuses it.
+        const full = await cli(
+          'search',
+          'raw',
+          'milch',
+          '--zip',
+          zip,
+          '--limit',
+          '5',
+          '--json-full',
+        );
+        const fullData = JSON.parse(full.stdout) as FullSearchOutput;
+
+        assert.equal(fullData.query, 'milch');
+        assert.ok(fullData.totalResults > 0);
+        assert.ok(fullData.results.length > 0);
+        assert.ok(fullData.results.length <= 5);
+        for (const offer of fullData.results) {
+          assert.equal(typeof offer.id, 'number');
+          assert.equal(typeof offer.product.name, 'string');
+          assert.ok(Array.isArray(offer.advertisers));
+          assert.ok(offer.descriptionLines.length > 0);
+          for (const line of offer.descriptionLines) {
+            assert.equal(typeof line, 'string');
+          }
+        }
+        assert.equal(typeof fullData.filters, 'object');
+        assert.ok(Array.isArray(fullData.filters.retailers));
+
+        // The HTTP API returns the same shape.
+        const server = await spawnServer(home, ['--port', '0']);
+        try {
+          const res = await fetch(
+            `${server.url}/search?q=milch&zip=${zip}&limit=3`,
+          );
+          assert.equal(res.status, 200);
+          const served = (await res.json()) as FullSearchOutput;
+          assert.equal(served.query, 'milch');
+          assert.ok(served.results.length > 0);
+          assert.ok(served.results.length <= 3);
+          assert.ok(served.results[0].descriptionLines.length > 0);
+        } finally {
+          await server.stop('SIGTERM');
+        }
+      } finally {
+        await rm(home, { recursive: true, force: true });
+      }
+    },
+  );
+}

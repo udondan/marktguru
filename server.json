@@ -1,0 +1,41 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.udondan/marktguru",
+  "title": "marktguru",
+  "description": "Search current supermarket deals from weekly leaflets on Marktguru in Germany and Austria",
+  "version": "1.4.0",
+  "repository": {
+    "url": "https://github.com/udondan/marktguru",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@udondan/marktguru",
+      "version": "1.4.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "packageArguments": [
+        {
+          "type": "positional",
+          "value": "mcp"
+        }
+      ],
+      "environmentVariables": [
+        {
+          "name": "MARKTGURU_COUNTRY",
+          "description": "Default country for searches: de (Germany) or at (Austria). Overrides ~/.marktguru/config.json",
+          "isRequired": false,
+          "isSecret": false
+        },
+        {
+          "name": "MARKTGURU_ZIP",
+          "description": "Default ZIP code for location-based results. Overrides ~/.marktguru/config.json",
+          "isRequired": false,
+          "isSecret": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "name": "@udondan/marktguru",
+  "version": "1.4.0",
+  "mcpName": "io.github.udondan/marktguru",
+  "description": "Marktguru supermarket deals in Germany and Austria: CLI, HTTP API and MCP server",
+  "license": "MIT",
+  "author": {
+    "name": "Daniel Schroeder",
+    "url": "https://www.udondan.com/"
+  },
+  "contributors": [
+    "Manuel Maly"
+  ],
+  "homepage": "https://github.com/udondan/marktguru",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/udondan/marktguru.git"
+  },
+  "bugs": {
+    "url": "https://github.com/udondan/marktguru/issues"
+  },
+  "keywords": [
+    "cli",
+    "mcp",
+    "mcp-server",
+    "marktguru",
+    "grocery",
+    "deals",
+    "discounts",
+    "austria",
+    "germany"
+  ],
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "bin": {
+    "marktguru": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "bun src/cli.ts",
+    "start": "node dist/cli.js",
+    "test": "bun run build && tsc -p tsconfig-tests.json && c8 node --test tests/*.test.ts",
+    "test:unit": "bun run build && tsc -p tsconfig-tests.json && c8 node --test --test-skip-pattern=\"^live:\" tests/*.test.ts",
+    "lint": "eslint .",
+    "lint:tools": "tdqs lint --command \"node dist/cli.js mcp\" --server-name marktguru --fail-on warning",
+    "format": "prettier --write .",
+    "prepublishOnly": "bun run build"
+  },
+  "files": [
+    "dist",
+    "!dist/**/*.map",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "commander": "15.1.0",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.10",
+    "c8": "12.0.0",
+    "eslint": "10.15.0",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-prettier": "5.5.7",
+    "mcp-tdqs": "0.2.0",
+    "prettier": "3.10.1",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.74.0"
+  },
+  "overrides": {
+    "minimatch": "^11.0.3",
+    "glob": "14.0.6"
+  }
+}
